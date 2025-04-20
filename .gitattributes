@@ -1,0 +1,12 @@
+/gradlew text eol=lf
+*.bat text eol=crlf
+*.jar binary
+
+# 모든 텍스트 파일은 LF 사용 (유닉스 스타일)
+* text=auto eol=lf
+
+# 윈도우 배치 파일은 CRLF 사용
+*.bat text eol=crlf
+
+# 바이너리 파일은 자동 처리 안 함
+*.jar binary
