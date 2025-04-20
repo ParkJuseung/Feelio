@@ -1,0 +1,56 @@
+/* base.css - 기본 변수 및 공통 스타일 */
+
+:root {
+    --primary-color: #7b8cde; /* 보다 부드러운 블루 */
+    --primary-light: #e0e6ff;
+    --secondary-color: #f7f9ff;
+    --accent-color: #b19cd9; /* 라벤더 계열 악센트 */
+    --accent-light: #f0ebff;
+    --text-color: #4a5568;
+    --text-light: #7c8ba1;
+    --bg-color: #f8faff;
+    --message-bg: #ffffff;
+    --user-message-bg: #d4dbff;
+    --user-message-color: #4a5568;
+    --shadow-light: 0 4px 15px rgba(123, 140, 222, 0.1);
+    --shadow-medium: 0 6px 20px rgba(123, 140, 222, 0.15);
+    --shadow-neumorphic: 6px 6px 12px rgba(166, 180, 223, 0.2), -6px -6px 12px rgba(255, 255, 255, 0.8);
+    --gradient-bg: linear-gradient(145deg, #edf1ff, #f7f9ff);
+    --border-radius: 22px;
+    --border-radius-lg: 28px;
+}
+
+/* 기본 설정 - 글씨체 */
+body {
+    background-color: var(--bg-color);
+    font-family: 'GmarketSans', 'Cafe24Ssurround', 'S-CoreDream', 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+    color: var(--text-color);
+    line-height: 1.5;
+    background-image:
+            radial-gradient(var(--primary-light) 1px, transparent 1px),
+            radial-gradient(var(--accent-light) 1px, transparent 1px);
+    background-size: 20px 20px;
+    background-position: 0 0, 10px 10px;
+}
+
+/* 글씨체 임포트 */
+@font-face {
+    font-family: 'GmarketSans';
+    src: url('https://cdn.jsdelivr.net/gh/webfontworld/gmarket/GmarketSansMedium.woff2') format('woff2');
+    font-weight: 500;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Cafe24Ssurround';
+    src: url('https://cdn.jsdelivr.net/gh/webfontworld/cafe24/Cafe24Ssurround.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'S-CoreDream';
+    src: url('https://cdn.jsdelivr.net/gh/webfontworld/SCoreDream/SCoreDream5.woff2') format('woff2');
+    font-weight: 500;
+    font-style: normal;
+}

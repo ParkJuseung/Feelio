@@ -1,0 +1,511 @@
+:root {
+    --primary-color: #7b8cde; /* 보다 부드러운 블루 */
+    --primary-light: #e0e6ff;
+    --secondary-color: #f7f9ff;
+    --accent-color: #b19cd9; /* 라벤더 계열 악센트 */
+    --accent-light: #f0ebff;
+    --text-color: #4a5568;
+    --text-light: #7c8ba1;
+    --bg-color: #f8faff;
+    --message-bg: #ffffff;
+    --user-message-bg: #d4dbff;
+    --user-message-color: #4a5568;
+    --shadow-light: 0 4px 15px rgba(123, 140, 222, 0.1);
+    --shadow-medium: 0 6px 20px rgba(123, 140, 222, 0.15);
+    --shadow-neumorphic: 6px 6px 12px rgba(166, 180, 223, 0.2), -6px -6px 12px rgba(255, 255, 255, 0.8);
+    --gradient-bg: linear-gradient(145deg, #edf1ff, #f7f9ff);
+    --border-radius: 22px;
+    --border-radius-lg: 28px;
+}
+
+/* 기본 설정 - 글씨체 개선 */
+body {
+    background-color: var(--bg-color);
+    /* 글씨체 개선: 여러 대체 폰트 추가 */
+    font-family: 'GmarketSans', 'Cafe24Ssurround', 'S-CoreDream', 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+    color: var(--text-color);
+    line-height: 1.5;
+    background-image:
+            radial-gradient(var(--primary-light) 1px, transparent 1px),
+            radial-gradient(var(--accent-light) 1px, transparent 1px);
+    background-size: 20px 20px;
+    background-position: 0 0, 10px 10px;
+}
+
+/* 글씨체 임포트 */
+@font-face {
+    font-family: 'GmarketSans';
+    src: url('https://cdn.jsdelivr.net/gh/webfontworld/gmarket/GmarketSansMedium.woff2') format('woff2');
+    font-weight: 500;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Cafe24Ssurround';
+    src: url('https://cdn.jsdelivr.net/gh/webfontworld/cafe24/Cafe24Ssurround.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'S-CoreDream';
+    src: url('https://cdn.jsdelivr.net/gh/webfontworld/SCoreDream/SCoreDream5.woff2') format('woff2');
+    font-weight: 500;
+    font-style: normal;
+}
+
+/* 핸드폰 컨테이너 */
+.phone-container {
+    position: relative;
+    width: 375px;
+    height: 812px;
+    margin: 40px auto;
+    border-radius: 40px;
+    box-shadow:
+            0 0 0 10px rgba(239, 243, 255, 0.7),
+            0 0 0 14px rgba(230, 236, 255, 0.5),
+            0 30px 60px rgba(123, 140, 222, 0.2);
+    overflow: hidden;
+    background-color: var(--bg-color);
+}
+
+/* 노치 디자인 */
+.notch {
+    position: absolute;
+    width: 210px;
+    height: 30px;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--bg-color);
+    border-bottom-left-radius: 24px;
+    border-bottom-right-radius: 24px;
+    z-index: 5;
+    box-shadow: 0 4px 10px -5px rgba(123, 140, 222, 0.15);
+}
+
+/* 상태 표시줄 */
+.status-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 44px;
+    background: transparent;
+    padding: 5px 24px 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    color: var(--primary-color);
+    z-index: 4;
+    font-weight: 500;
+}
+
+/* 시간 표시 */
+.time {
+    font-weight: 600;
+    width: 54px;
+    text-align: center;
+    background-color: rgba(224, 230, 255, 0.7);
+    padding: 4px 8px;
+    border-radius: 12px;
+}
+
+/* 상태 아이콘 */
+.status-icons {
+    display: flex;
+    gap: 8px;
+}
+
+.status-icons > div {
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 배터리 아이콘 */
+.battery {
+    width: 24px;
+    height: 12px;
+    border: 1.5px solid var(--primary-color);
+    border-radius: 6px;
+    padding: 1px;
+    position: relative;
+}
+
+.battery::after {
+    content: '';
+    position: absolute;
+    width: 2px;
+    height: 4px;
+    background: var(--primary-color);
+    right: -4px;
+    top: 50%;
+    transform: translateY(-50%);
+    border-radius: 0 2px 2px 0;
+}
+
+.battery-level {
+    height: 100%;
+    width: 60%;
+    background-color: var(--primary-color);
+    border-radius: 3px;
+}
+
+/* 신호 아이콘 */
+.signal {
+    display: flex;
+    align-items: flex-end;
+    height: 12px;
+    gap: 1.5px;
+}
+
+.signal div {
+    width: 3px;
+    background-color: var(--primary-color);
+    border-radius: 1.5px;
+}
+
+.signal div:nth-child(1) {
+    height: 4px;
+}
+
+.signal div:nth-child(2) {
+    height: 6px;
+}
+
+.signal div:nth-child(3) {
+    height: 8px;
+}
+
+.signal div:nth-child(4) {
+    height: 10px;
+}
+
+/* Wi-Fi 아이콘 */
+.wifi {
+    position: relative;
+    width: 15px;
+    height: 12px;
+}
+
+.wifi div {
+    position: absolute;
+    border: 1.5px solid transparent;
+    border-top-color: var(--primary-color);
+    border-radius: 50%;
+}
+
+.wifi div:nth-child(1) {
+    width: 20px;
+    height: 20px;
+    top: -14px;
+    left: -3px;
+}
+
+.wifi div:nth-child(2) {
+    width: 12px;
+    height: 12px;
+    top: -10px;
+    left: 1px;
+}
+
+.wifi div:nth-child(3) {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+    border: none;
+    top: -6px;
+    left: 5px;
+}
+
+
+/* 앱 컨테이너 */
+.app-container {
+    position: relative;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--bg-color);
+    overflow: hidden;
+    padding-top: 44px;
+}
+
+/* 앱 헤더 */
+.app-header {
+    padding: 22px 20px 18px;
+    background: linear-gradient(145deg, #e0e6ff, #f0f4ff);
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    box-shadow: 0 4px 15px rgba(123, 140, 222, 0.1);
+    border-bottom-left-radius: 24px;
+    border-bottom-right-radius: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 16px;
+
+}
+
+.app-title {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--primary-color);
+    text-align: center;
+    letter-spacing: -0.5px;
+    font-family: 'Cafe24Ssurround', 'GmarketSans', sans-serif; /* 앱 제목용 귀여운 폰트 */
+}
+
+.app-date {
+    font-size: 14px;
+    color: var(--text-light);
+    font-weight: 500;
+    text-align: center;
+}
+
+/* 오늘의 질문 */
+.today-question {
+    margin: 22px 18px;
+    padding: 20px;
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-neumorphic);
+    border: 1px solid rgba(224, 230, 255, 0.7);
+}
+
+.today-question-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--accent-color);
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    font-family: 'GmarketSans', sans-serif; /* 질문 라벨용 폰트 */
+}
+
+.today-question-label::before {
+    content: '✨';
+    margin-right: 6px;
+    font-size: 16px;
+}
+
+.today-question-text {
+    font-size: 16px;
+    color: var(--text-color);
+    line-height: 1.6;
+    padding: 0 4px;
+    font-family: 'S-CoreDream', 'Pretendard', sans-serif; /* 질문 텍스트용 폰트 */
+    letter-spacing: -0.3px;
+}
+
+/* 채팅 컨테이너 - 수정: 입력창이 잘 보이도록 패딩 조정 */
+.chat-container {
+    flex: 1;
+    padding: 18px;
+    padding-bottom: 10px; /* 아래 패딩 줄임 */
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    position: relative;
+    background: var(--secondary-color);
+}
+
+/* 날짜 배지 */
+.date-badge {
+    background-color: rgba(177, 156, 217, 0.15);
+    color: var(--accent-color);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 7px 14px;
+    border-radius: 16px;
+    margin: 15px auto;
+    text-align: center;
+    width: fit-content;
+    box-shadow: 0 2px 8px rgba(177, 156, 217, 0.1);
+    font-family: 'GmarketSans', sans-serif;
+}
+
+/* 메시지 스타일 - 글씨체 개선 */
+.bot-message, .user-message {
+    position: relative;
+    max-width: 85%;
+    margin-bottom: 18px;
+    padding: 15px 18px;
+    border-radius: var(--border-radius);
+    font-size: 15px;
+    line-height: 1.6;
+    font-family: 'S-CoreDream', 'Pretendard', sans-serif; /* 메시지용 폰트 */
+    letter-spacing: -0.2px;
+}
+
+.bot-message {
+    align-self: flex-start;
+    background: var(--message-bg);
+    color: var(--text-color);
+    border-bottom-left-radius: 8px;
+    margin-right: auto;
+    box-shadow: var(--shadow-light);
+    border: 1px solid rgba(224, 230, 255, 0.7);
+}
+
+.user-message {
+    align-self: flex-end;
+    background: var(--user-message-bg);
+    color: var(--user-message-color);
+    border-bottom-right-radius: 8px;
+    margin-left: auto;
+    box-shadow: var(--shadow-light);
+    border: 1px solid rgba(224, 230, 255, 0.7);
+}
+
+.bot-message::before {
+    content: '🤖';
+    position: absolute;
+    top: -20px;
+    left: 10px;
+    font-size: 16px;
+}
+
+.user-message::before {
+    content: '😊';
+    position: absolute;
+    top: -20px;
+    right: 10px;
+    font-size: 16px;
+}
+
+.message-time {
+    font-size: 11px;
+    color: var(--text-light);
+    margin-top: 8px;
+    text-align: right;
+    font-family: 'GmarketSans', sans-serif;
+}
+
+/* 시스템 메시지 */
+.system-message {
+    text-align: center;
+    font-size: 12px;
+    color: var(--accent-color);
+    background-color: rgba(177, 156, 217, 0.1);
+    padding: 10px 16px;
+    border-radius: 16px;
+    margin: 14px auto;
+    width: fit-content;
+    box-shadow: 0 2px 8px rgba(177, 156, 217, 0.08);
+    border: 1px solid rgba(177, 156, 217, 0.15);
+    font-family: 'GmarketSans', sans-serif;
+}
+
+/* 입력 영역 - 수정: 입력창이 완전히 보이도록 패딩 조정 */
+.input-area {
+    display: flex;
+    align-items: center;
+    padding: 14px 16px 50px; /* 패딩 하단 줄임 (26px → 14px) */
+    background-color: white;
+    box-shadow: 0 -2px 15px rgba(123, 140, 222, 0.08);
+    z-index: 2;
+    border-top: 1px solid rgba(224, 230, 255, 0.7);
+    position: relative; /* 위치 조정을 위해 추가 */
+    bottom: 0; /* 바닥에 고정 */
+}
+
+.message-input {
+    flex: 1;
+    height: 46px; /* 약간 줄임 */
+    padding: 12px 18px;
+    border: 1px solid rgba(224, 230, 255, 0.9);
+    border-radius: 23px;
+    background-color: var(--secondary-color);
+    font-size: 15px;
+    box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.03);
+    transition: all 0.3s ease;
+    color: var(--text-color);
+    font-family: 'S-CoreDream', 'Pretendard', sans-serif; /* 입력창 폰트 */
+    letter-spacing: -0.3px;
+}
+
+.message-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 4px rgba(123, 140, 222, 0.1);
+}
+
+.message-input::placeholder {
+    color: var(--text-light);
+    opacity: 0.8;
+    font-family: 'S-CoreDream', 'Pretendard', sans-serif;
+}
+
+.send-button {
+    width: 46px; /* 약간 줄임 */
+    height: 46px; /* 약간 줄임 */
+    margin-left: 12px;
+    border-radius: 50%;
+    background: linear-gradient(145deg, #7b8cde, #96a5e6);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-medium);
+    position: relative;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.send-button:hover {
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 8px 20px rgba(123, 140, 222, 0.25);
+}
+
+.send-button:active {
+    transform: translateY(1px) scale(0.98);
+}
+
+.send-button::after {
+    content: '';
+    display: block;
+    width: 18px;
+    height: 18px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='white'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 19l9 2-9-18-9 18 9-2zm0 0v-8'/%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+/* 말풍선 테일 효과 */
+.bot-message::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: -8px;
+    width: 16px;
+    height: 16px;
+    background: white;
+    border-bottom-right-radius: 16px;
+    box-shadow: 4px 4px 0 0 rgba(224, 230, 255, 0.7);
+    border-right: 1px solid rgba(224, 230, 255, 0.7);
+    border-bottom: 1px solid rgba(224, 230, 255, 0.7);
+}
+
+.user-message::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    right: -8px;
+    width: 16px;
+    height: 16px;
+    background: var(--user-message-bg);
+    border-bottom-left-radius: 16px;
+    box-shadow: -4px 4px 0 0 rgba(224, 230, 255, 0.7);
+    border-left: 1px solid rgba(224, 230, 255, 0.7);
+    border-bottom: 1px solid rgba(224, 230, 255, 0.7);
+}

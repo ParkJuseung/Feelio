@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <!-- 기본 스타일 -->
+    <link rel="stylesheet" href="/static/css/base.css">
+    <!-- 폰 스타일 -->
+    <link rel="stylesheet" href="/static/css/phone-style.css">
+    <!-- 프레임 스타일 -->
+    <link rel="stylesheet" href="/static/css/phone-frame.css">
+    <!-- 스크롤바 스타일 -->
+    <link rel="stylesheet" href="/static/css/scrollbar-style.css">
+    <!-- 앱 콘텐츠 스타일 -->
+<!--    <link rel="stylesheet" href="/static/css/app-content.css">-->
+    <title>감다 채팅</title>
+
+</head>
+<style>
+    .header-layout-center {
+        text-align: center;
+    }
+</style>
+<body>
+<div class="phone-container">
+    <!-- 노치 및 상태바 -->
+    <div class="notch"></div>
+    <div class="status-bar">
+        <div class="time">9:41</div>
+        <div class="status-icons">
+            <div class="signal">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 앱 컨텐츠 -->
+    <div class="app-container">
+        <div class="app-header header-layout-center">
+            <div class="app-title">감다 채팅</div>
+            <div class="app-date">2023년 10월 15일</div>
+        </div>
+
+        <!-- 오늘의 질문 -->
+        <!--    <div class="today-question">-->
+        <!--      <div class="today-question-label">오늘의 질문</div>-->
+        <!--      <div class="today-question-text">오늘 가장 행복했던 순간은 언제였나요?</div>-->
+        <!--    </div>-->
+
+        <!-- 채팅 영역 -->
+        <div class="chat-container">
+            <div class="date-badge">2023년 10월 15일</div>
+
+            <div class="bot-message">
+                안녕하세요! 오늘 하루는 어떠셨나요? 오늘의 마음을 들려주세요.
+                <div class="message-time">09:30</div>
+            </div>
+
+            <div class="user-message">
+                오늘은 친구랑 카페에서 수다 떨다가 너무 웃어서 좋았어!
+                <div class="message-time">09:32</div>
+            </div>
+
+            <div class="bot-message">
+                정말 즐거웠겠네요! 친구와의 시간은 항상 특별하죠. 그런 행복한 순간들이 더 많아지길 바랄게요! 💕
+                <div class="message-time">09:33</div>
+            </div>
+
+            <div class="system-message">
+                감정 기록이 저장되었습니다.
+            </div>
+        </div>
+
+        <!-- 입력 영역 -->
+        <div class="input-area">
+            <input type="text" class="message-input" placeholder="오늘의 마음을 적어보세요...">
+            <button class="send-button"></button>
+        </div>
+    </div>
+
+</div>
+
+<!-- 프레임 컨테이너 - 항상 최상위에 위치 -->
+<div class="frame-container">
+    <div class="phone-frame"></div>
+</div>
+
+
+<!-- 그림자 효과 -->
+<div class="phone-shadow"></div>
+
+<script>
+    // scrollbar-functions.js - 스크롤 관련 기능
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const chatContainer = document.querySelector('.chat-container');
+        const scrollIndicator = document.createElement('div');
+        scrollIndicator.className = 'scroll-indicator';
+        chatContainer.appendChild(scrollIndicator);
+
+        // 스크롤 이벤트 리스너
+        chatContainer.addEventListener('scroll', function() {
+            // 스크롤이 맨 아래가 아닐 때만 스크롤 인디케이터 표시
+            const isScrollable = chatContainer.scrollHeight > chatContainer.clientHeight;
+            const isScrolledToBottom = chatContainer.scrollHeight - chatContainer.scrollTop <= chatContainer.clientHeight + 10;
+
+            if (isScrollable && !isScrolledToBottom) {
+                scrollIndicator.classList.add('visible');
+
+                // 스크롤 방향에 따라 인디케이터 회전
+                const isScrollingDown = chatContainer.scrollTop > (chatContainer.lastScrollTop || 0);
+                if (isScrollingDown) {
+                    chatContainer.classList.add('scrolling-down');
+                } else {
+                    chatContainer.classList.remove('scrolling-down');
+                }
+                chatContainer.lastScrollTop = chatContainer.scrollTop;
+            } else {
+                scrollIndicator.classList.remove('visible');
+            }
+        });
+
+        // 스크롤 인디케이터 클릭 이벤트
+        scrollIndicator.addEventListener('click', function() {
+            // 맨 아래로 스크롤
+            chatContainer.scrollTo({
+                top: chatContainer.scrollHeight,
+                behavior: 'smooth'
+            });
+        });
+
+        // 새 메시지가 추가될 때 스크롤 자동 조정
+        const messageObserver = new MutationObserver(function(mutations) {
+            const wasAtBottom = chatContainer.scrollHeight - chatContainer.scrollTop <= chatContainer.clientHeight + 10;
+
+            if (wasAtBottom) {
+                setTimeout(() => {
+                    chatContainer.scrollTo({
+                        top: chatContainer.scrollHeight,
+                        behavior: 'smooth'
+                    });
+                }, 100);
+            }
+        });
+
+        messageObserver.observe(chatContainer, { childList: true, subtree: true });
+    });
+</script>
+</body>
+</html>

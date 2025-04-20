@@ -1,0 +1,130 @@
+/* phone-frame.css - 휴대폰 외관 및 프레임 관련 스타일 */
+
+/* 핸드폰 컨테이너 */
+.phone-container {
+    position: relative;
+    width: 375px;
+    height: 812px;
+    margin: 40px auto;
+    border-radius: 40px;
+    box-shadow:
+            0 0 0 10px rgba(239, 243, 255, 0.7),
+            0 0 0 14px rgba(230, 236, 255, 0.5),
+            0 30px 60px rgba(123, 140, 222, 0.2);
+    overflow: hidden;
+    background-color: var(--bg-color);
+}
+
+/* 그림자 효과 */
+.phone-shadow {
+    position: absolute;
+    width: 375px;
+    height: 20px;
+    bottom: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.1);
+    filter: blur(10px);
+    z-index: -1;
+}
+
+/* 프레임 컨테이너 */
+.frame-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.phone-frame {
+    position: absolute;
+    width: 375px;
+    height: 812px;
+    top: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 40px;
+    box-shadow: inset 0 0 0 2px rgba(123, 140, 222, 0.3);
+    z-index: 10;
+    pointer-events: none;
+}
+
+/* 노치 디자인 */
+.notch {
+    position: absolute;
+    width: 210px;
+    height: 30px;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--bg-color);
+    border-bottom-left-radius: 24px;
+    border-bottom-right-radius: 24px;
+    z-index: 5;
+    box-shadow: 0 4px 10px -5px rgba(123, 140, 222, 0.15);
+}
+
+/* 상태 표시줄 */
+.status-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 44px;
+    background: transparent;
+    padding: 5px 24px 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    color: var(--primary-color);
+    z-index: 4;
+    font-weight: 500;
+}
+
+/* 시간 표시 */
+.time {
+    font-weight: 600;
+    width: 54px;
+    text-align: center;
+    background-color: rgba(224, 230, 255, 0.7);
+    padding: 4px 8px;
+    border-radius: 12px;
+}
+
+/* 상태 아이콘 */
+.status-icons {
+    display: flex;
+    gap: 8px;
+}
+
+.status-icons > div {
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 신호 아이콘 */
+.signal {
+    display: flex;
+    align-items: flex-end;
+    height: 12px;
+    gap: 1.5px;
+}
+
+.signal div {
+    width: 3px;
+    background-color: var(--primary-color);
+    border-radius: 1.5px;
+}
+
+.signal div:nth-child(1) { height: 4px; }
+.signal div:nth-child(2) { height: 6px; }
+.signal div:nth-child(3) { height: 8px; }
+.signal div:nth-child(4) { height: 10px; }

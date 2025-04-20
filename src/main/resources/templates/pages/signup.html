@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <!-- 기본 스타일 -->
+  <link rel="stylesheet" th:href="@{/css/base.css}">
+  <!-- 폰 스타일 -->
+  <link rel="stylesheet" th:href="@{/css/phone-style.css}">
+  <!-- 프레임 스타일 -->
+  <link rel="stylesheet" th:href="@{/css/phone-frame.css}">
+  <!-- 스크롤바 스타일 -->
+  <link rel="stylesheet" th:href="@{/css/scrollbar-style.css}">
+  <!-- 앱 콘텐츠 스타일 -->
+  <link rel="stylesheet" th:href="@{/css/app-content.css}">
+
+  <title>회원가입 - 감다</title>
+
+  <style>
+    .app-container {
+      position: relative;
+      height: 100%;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .app-header {
+      text-align: center;
+      padding: 20px 0 10px;
+    }
+
+    .app-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 6px;
+    }
+
+    .back-button {
+      position: absolute;
+      left: 15px;
+      top: 20px;
+      background: none;
+      border: none;
+      font-size: 22px;
+      color: #333;
+      cursor: pointer;
+    }
+
+    .signup-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 10px 24px 30px;
+      overflow-y: auto;
+    }
+
+    .logo-container {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .logo {
+      font-size: 36px;
+      font-weight: 700;
+      color: #007BFF;
+      margin-bottom: 6px;
+    }
+
+    .sub-title {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 30px;
+    }
+
+    .input-field {
+      position: relative;
+      margin-bottom: 20px;
+    }
+
+    .input-field input {
+      width: 100%;
+      padding: 16px;
+      border: 1px solid #e0e0e0;
+      border-radius: 16px;
+      font-size: 15px;
+      transition: all 0.3s ease;
+      background-color: #f8f8f8;
+    }
+
+    .input-field input:focus {
+      border-color: #007BFF;
+      box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
+      background-color: #fff;
+    }
+
+    .input-field label {
+      position: absolute;
+      left: 16px;
+      top: -10px;
+      background-color: #fff;
+      padding: 0 6px;
+      font-size: 12px;
+      color: #666;
+      border-radius: 4px;
+    }
+
+    .validation-message {
+      font-size: 12px;
+      color: #ff4d4f;
+      margin-top: 5px;
+      margin-left: 16px;
+      display: none;
+    }
+
+    .checkbox-container {
+      margin: 20px 0;
+    }
+
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .checkbox-item input[type="checkbox"] {
+      margin-right: 10px;
+      width: 18px;
+      height: 18px;
+      accent-color: #007BFF;
+    }
+
+    .terms-link {
+      color: #007BFF;
+      text-decoration: none;
+      margin-left: 5px;
+    }
+
+    .signup-button {
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 16px;
+      padding: 16px;
+      font-size: 16px;
+      font-weight: 600;
+      width: 100%;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 10px;
+      box-shadow: 0 4px 15px rgba(0, 123, 255, 0.2);
+    }
+
+    .signup-button:active {
+      transform: scale(0.98);
+      box-shadow: 0 2px 8px rgba(0, 123, 255, 0.1);
+    }
+
+    .login-link {
+      text-align: center;
+      margin-top: 24px;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .login-link a {
+      color: #007BFF;
+      text-decoration: none;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+<div class="phone-container">
+  <!-- 노치 및 상태바 -->
+  <div class="notch"></div>
+  <div class="status-bar">
+    <div class="time">9:41</div>
+    <div class="status-icons">
+      <div class="signal">
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 앱 컨텐츠 -->
+  <div class="app-container">
+    <div class="app-header">
+      <button class="back-button" onclick="history.back()">&lt;</button>
+      <div class="app-title">회원가입</div>
+    </div>
+
+    <div class="signup-container">
+      <div class="logo-container">
+        <div class="logo">감다</div>
+        <div class="sub-title">감정을 기록하다</div>
+      </div>
+
+      <!-- 폼을 Thymeleaf와 연동 -->
+      <form th:action="@{/signup}" th:object="${userRegisterDto}" method="post">
+        <div class="input-field">
+          <label for="email">이메일</label>
+          <input type="email" id="email" th:field="*{email}" placeholder="이메일 주소를 입력하세요" required>
+          <div class="validation-message" id="email-validation" th:if="${#fields.hasErrors('email')}" th:errors="*{email}">
+            올바른 이메일 형식이 아닙니다
+          </div>
+        </div>
+
+        <div class="input-field">
+          <label for="password">비밀번호</label>
+          <input type="password" id="password" th:field="*{password}" placeholder="영문, 숫자 포함 8자 이상" required>
+          <div class="validation-message" id="password-validation" th:if="${#fields.hasErrors('password')}" th:errors="*{password}">
+            비밀번호는 8자 이상의 영문과 숫자 조합이어야 합니다
+          </div>
+        </div>
+
+        <div class="input-field">
+          <label for="confirm-password">비밀번호 확인</label>
+          <input type="password" id="confirm-password" placeholder="비밀번호를 다시 입력하세요" required>
+          <div class="validation-message" id="confirm-password-validation">
+            비밀번호가 일치하지 않습니다
+          </div>
+        </div>
+
+        <div class="input-field">
+          <label for="nickname">닉네임</label>
+          <input type="text" id="nickname" th:field="*{nickname}" placeholder="2~10자 이내로 입력하세요" required>
+          <div class="validation-message" id="nickname-validation" th:if="${#fields.hasErrors('nickname')}" th:errors="*{nickname}">
+            닉네임은 2~10자 이내로 입력해주세요
+          </div>
+        </div>
+
+        <div class="checkbox-container">
+          <div class="checkbox-item">
+            <input type="checkbox" id="all-agree">
+            <label for="all-agree">전체 동의</label>
+          </div>
+
+          <div class="checkbox-item">
+            <input type="checkbox" id="terms-agree" th:field="*{termsAgree}" required>
+            <label for="terms-agree">이용약관 동의 (필수)</label>
+            <a href="#" class="terms-link">보기</a>
+          </div>
+
+          <div class="checkbox-item">
+            <input type="checkbox" id="privacy-agree" th:field="*{privacyAgree}" required>
+            <label for="privacy-agree">개인정보 수집 및 이용 동의 (필수)</label>
+            <a href="#" class="terms-link">보기</a>
+          </div>
+
+          <div class="checkbox-item">
+            <input type="checkbox" id="marketing-agree" th:field="*{marketingAgree}">
+            <label for="marketing-agree">마케팅 정보 수신 동의 (선택)</label>
+          </div>
+        </div>
+
+        <button type="submit" class="signup-button">회원가입</button>
+
+        <div class="login-link">
+          이미 계정이 있으신가요? <a href="/login">로그인</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</div>
+
+<!-- 프레임 컨테이너 - 항상 최상위에 위치 -->
+<div class="frame-container">
+  <div class="phone-frame"></div>
+</div>
+
+<!-- 그림자 효과 -->
+<div class="phone-shadow"></div>
+
+<script>
+  // 모두 동의 체크박스 기능
+  document.getElementById('all-agree').addEventListener('change', function() {
+    const allChecked = this.checked;
+    document.querySelectorAll('.checkbox-item input[type="checkbox"]').forEach(checkbox => {
+      checkbox.checked = allChecked;
+    });
+  });
+
+  // 개별 체크박스 변경 시 모두 동의 체크박스 업데이트
+  document.querySelectorAll('.checkbox-item input[type="checkbox"]:not(#all-agree)').forEach(checkbox => {
+    checkbox.addEventListener('change', updateAllAgreeCheckbox);
+  });
+
+  function updateAllAgreeCheckbox() {
+    const checkboxes = document.querySelectorAll('.checkbox-item input[type="checkbox"]:not(#all-agree)');
+    const allAgreeCheckbox = document.getElementById('all-agree');
+    const allChecked = Array.from(checkboxes).every(checkbox => checkbox.checked);
+    allAgreeCheckbox.checked = allChecked;
+  }
+
+  // 회원가입 버튼 이벤트
+  document.querySelector('.signup-button').addEventListener('click', function() {
+    let isValid = true;
+
+    // 이메일 검증
+    const email = document.getElementById('email').value;
+    const emailValidation = document.getElementById('email-validation');
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      emailValidation.style.display = 'block';
+      isValid = false;
+    } else {
+      emailValidation.style.display = 'none';
+    }
+
+    // 비밀번호 검증
+    const password = document.getElementById('password').value;
+    const passwordValidation = document.getElementById('password-validation');
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+    if (!passwordRegex.test(password)) {
+      passwordValidation.style.display = 'block';
+      isValid = false;
+    } else {
+      passwordValidation.style.display = 'none';
+    }
+
+    // 비밀번호 확인 검증
+    const confirmPassword = document.getElementById('confirm-password').value;
+    const confirmPasswordValidation = document.getElementById('confirm-password-validation');
+    if (password !== confirmPassword) {
+      confirmPasswordValidation.style.display = 'block';
+      isValid = false;
+    } else {
+      confirmPasswordValidation.style.display = 'none';
+    }
+
+    // 닉네임 검증
+    const nickname = document.getElementById('nickname').value;
+    const nicknameValidation = document.getElementById('nickname-validation');
+    if (nickname.length < 2 || nickname.length > 10) {
+      nicknameValidation.style.display = 'block';
+      isValid = false;
+    } else {
+      nicknameValidation.style.display = 'none';
+    }
+
+    // 필수 약관 동의 검증
+    const termsAgree = document.getElementById('terms-agree').checked;
+    const privacyAgree = document.getElementById('privacy-agree').checked;
+
+    if (!termsAgree || !privacyAgree) {
+      alert('필수 약관에 동의해주세요.');
+      isValid = false;
+    }
+
+    if (isValid) {
+      // TODO: 회원가입 처리 로직 구현
+      // 성공 시 로그인 페이지로 이동
+      alert('회원가입이 완료되었습니다. 로그인 페이지로 이동합니다.');
+      window.location.href = 'login.html';
+    }
+  });
+</script>
+</body>
+</html>
