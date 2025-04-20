@@ -1,5 +1,7 @@
 package com.test.feelio.config;
 
+import com.test.feelio.oauth.CustomOAuth2UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -10,8 +12,10 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
 
+    private final CustomOAuth2UserService customOAuth2UserService;
 
 
     @Bean
@@ -23,10 +27,16 @@ public class SecurityConfig {
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
-                        .loginProcessingUrl("/login-process") // 실제 로그인 처리 URL 확인
-                        .defaultSuccessUrl("/") // 성공 시 리다이렉션 URL
-                        .failureUrl("/login?error") // 실패 시 리다이렉션 URL
+                        .loginProcessingUrl("/login-process")
+                        .defaultSuccessUrl("/")
+                        .failureUrl("/login?error")
                         .permitAll()
+                )
+                .oauth2Login(oauth2 -> oauth2
+                        .loginPage("/login")
+                        .defaultSuccessUrl("/")
+                        .userInfoEndpoint(userInfo -> userInfo
+                                .userService(customOAuth2UserService))
                 )
                 .logout(logout -> logout
                         .logoutSuccessUrl("/")
@@ -36,9 +46,4 @@ public class SecurityConfig {
         return http.build();
     }
 
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
 }

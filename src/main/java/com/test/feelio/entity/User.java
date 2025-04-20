@@ -1,6 +1,7 @@
 package com.test.feelio.entity;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -74,4 +75,24 @@ public class User {
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
+
+    // update 메소드 추가
+    public User update(String nickname, String email) {
+        this.nickname = nickname;
+        this.email = email;
+        return this;
+    }
+
+    // 빌더 패턴 수정 (provider, providerId 추가)
+    @Builder
+    public User(Long id, String password, String nickname, String email, Role role, String provider, String providerId) {
+        this.id = id;
+        this.password = password;
+        this.nickname = nickname;
+        this.email = email;
+        this.role = role;
+        this.provider = provider;
+        this.providerId = providerId;
+    }
+
 }
