@@ -28,7 +28,7 @@ public class ActivityEffect {
     @Column(name = "ACTIVITY_NAME", nullable = false, length = 100)
     private String activityName;
 
-    @Column(name = "AVERAGE_CHANGE_SCORE", precision = 3, scale = 2)
+    @Column(name = "AVERAGE_CHANGE_SCORE")
     private Double averageChangeScore;
 
     @Column(name = "USAGE_COUNT")

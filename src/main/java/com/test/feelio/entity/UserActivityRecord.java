@@ -37,7 +37,7 @@ public class UserActivityRecord {
     @JoinColumn(name = "EMOTION_AFTER_ID")
     private Emotion emotionAfter;
 
-    @Column(name = "EMOTION_CHANGE_SCORE", precision = 3, scale = 2)
+    @Column(name = "EMOTION_CHANGE_SCORE")
     private Double emotionChangeScore;
 
     @Column(name = "ACTIVITY_DATE")

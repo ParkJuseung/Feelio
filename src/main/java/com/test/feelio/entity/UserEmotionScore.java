@@ -30,7 +30,7 @@ public class UserEmotionScore {
     @JoinColumn(name = "EMOTION_ID", nullable = false)
     private Emotion emotion;
 
-    @Column(nullable = false, precision = 5, scale = 2)
+    @Column(nullable = false)
     private Double score;
 
     @Column(name = "SCORE_DATE", nullable = false)
