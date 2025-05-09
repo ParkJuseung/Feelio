@@ -29,7 +29,7 @@ public class DiaryEmotion {
     @JoinColumn(name = "EMOTION_ID", nullable = false)
     private Emotion emotion;
 
-    @Column(name = "EMOTION_PERCENTAGE", nullable = false, precision = 5, scale = 2)
+    @Column(name = "EMOTION_PERCENTAGE", nullable = false)
     private Double emotionPercentage;
 
     @Column(name = "IS_PRIMARY_EMOTION")
