@@ -28,7 +28,7 @@ public class DiaryActivity {
     @Column(name = "ACTIVITY_NAME", nullable = false, length = 100)
     private String activityName;
 
-    @Column(name = "ACTIVITY_SENTIMENT", precision = 3, scale = 2)
+    @Column(name = "ACTIVITY_SENTIMENT")
     private Double activitySentiment;
 
     @Column(name = "CREATED_AT", nullable = false, updatable = false)
