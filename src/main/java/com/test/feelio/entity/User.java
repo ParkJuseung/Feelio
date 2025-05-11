@@ -12,9 +12,14 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "USERS")
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@SequenceGenerator(
+        name = "USER_SEQ_GENERATOR",
+        sequenceName = "USER_SEQ",
+        initialValue = 1,
+        allocationSize = 1
+)
 public class User {
     @Id
     @Column(name = "user_id")
@@ -82,14 +87,24 @@ public class User {
 
     // 빌더 패턴 수정 (provider, providerId 추가)
     @Builder
-    public User(Long id, String password, String nickname, String email, Role role, String provider, String providerId) {
+    public User(Long id, String password, String nickname, String email,
+                boolean termsAgree, boolean privacyAgree, boolean marketingAgree,
+                boolean enabled, LocalDateTime createdAt, LocalDateTime updatedAt,
+                Role role, String provider, String providerId) {
         this.id = id;
         this.password = password;
         this.nickname = nickname;
         this.email = email;
+        this.termsAgree = termsAgree;
+        this.privacyAgree = privacyAgree;
+        this.marketingAgree = marketingAgree;
+        this.enabled = enabled;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
         this.role = role;
         this.provider = provider;
         this.providerId = providerId;
     }
+
 
 }
