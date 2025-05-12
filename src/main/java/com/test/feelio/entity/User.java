@@ -12,14 +12,9 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "USERS")
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@SequenceGenerator(
-        name = "USER_SEQ_GENERATOR",
-        sequenceName = "USER_SEQ",
-        initialValue = 1,
-        allocationSize = 1
-)
 public class User {
     @Id
     @Column(name = "user_id")
@@ -105,6 +100,5 @@ public class User {
         this.provider = provider;
         this.providerId = providerId;
     }
-
 
 }
