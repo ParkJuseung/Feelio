@@ -1,6 +1,9 @@
 package com.test.feelio.controller;
 
+import com.test.feelio.entity.User;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
@@ -8,12 +11,20 @@ import org.springframework.web.bind.annotation.PostMapping;
 public class MypageController {
 
     @GetMapping("/mypage")
-    public String mypage() {
+    public String mypage(HttpSession session, Model model) {
+        User user = (User) session.getAttribute("user"); // 세션에서 User 꺼내기
+        if (user != null) {
+            model.addAttribute("user", user); // Thymeleaf에 전달
+        }
         return "pages/mypage";
     }
 
     @GetMapping("/mypage/profile")
-    public String showProfile() {
+    public String showProfile(HttpSession session, Model model) {
+        User user = (User) session.getAttribute("user"); // 세션에서 User 꺼내기
+        if (user != null) {
+            model.addAttribute("user", user); // Thymeleaf에 전달
+        }
         return "pages/profile";
     }
 

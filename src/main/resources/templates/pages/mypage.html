@@ -6,15 +6,15 @@
         content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <!-- 기본 스타일 -->
-  <link rel="stylesheet" href="/static/css/base.css">
+  <link rel="stylesheet" href="/css/base.css">
   <!-- 폰 스타일 -->
-  <link rel="stylesheet" href="/static/css/phone-style.css">
+  <link rel="stylesheet" href="/css/phone-style.css">
   <!-- 프레임 스타일 -->
-  <link rel="stylesheet" href="/static/css/phone-frame.css">
+  <link rel="stylesheet" href="/css/phone-frame.css">
   <!-- 스크롤바 스타일 -->
-  <link rel="stylesheet" href="/static/css/scrollbar-style.css">
+  <link rel="stylesheet" href="/css/scrollbar-style.css">
   <!-- 앱 콘텐츠 스타일 -->
-  <link rel="stylesheet" href="/static/css/app-content.css">
+  <link rel="stylesheet" href="/css/app-content.css">
   <!-- 일기 리스트 스타일 -->
   <style>
 .mypage-container {
@@ -183,8 +183,8 @@ overflow-y: auto;
       <div class="profile-card" onclick="location.href='/mypage/profile'">
         <div class="profile-icon">👤</div>
         <div class="profile-info">
-          <div class="username">홍길동</div>
-          <div class="useremail">hong@gmail.com</div>
+          <div class="nickname" th:text="${user.nickname}">홍길동</div>
+          <div class="useremail" th:text="${user.email}">hong@gmail.com</div>
         </div>
       </div>
 
