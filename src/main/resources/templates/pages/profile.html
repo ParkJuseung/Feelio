@@ -194,6 +194,7 @@ margin-top: 4px;
 }
 
 </style>
+  <title>내 프로필</title>
 </head>
 <body>
 
@@ -226,22 +227,31 @@ margin-top: 4px;
 
       <form action="/profile" method="post">
         <div class="input-group">
-          <label for="username">이름</label>
-          <input type="text" id="username" name="username" value="홍길동">
-        </div>
-        <div class="input-group">
           <label for="nickname">닉네임</label>
-          <input type="text" id="nickname" name="nickname" value="홍길동">
+          <input type="text" id="nickname" name="nickname" th:value="${user.nickname}">
         </div>
 
         <div class="input-group">
           <label for="email" >이메일</label>
-          <input type="email" id="email" name="email" value="hong@gmail.com">
+          <input type="email" id="email" name="email" th:value="${user.email}">
         </div>
 
+        <!-- 기존 비밀번호 -->
         <div class="input-group">
-          <label for="phone">전화번호</label>
-          <input type="tel" id="phone" name="phone" placeholder="+82 10-1234-5678">
+          <label for="currentPassword">기존 비밀번호</label>
+          <input type="password" id="currentPassword" name="currentPassword" placeholder="현재 비밀번호 입력">
+        </div>
+
+        <!-- 새 비밀번호 -->
+        <div class="input-group">
+          <label for="newPassword">새 비밀번호</label>
+          <input type="password" id="newPassword" name="newPassword" placeholder="새 비밀번호 입력">
+        </div>
+
+        <!-- 새 비밀번호 확인 -->
+        <div class="input-group">
+          <label for="confirmPassword">새 비밀번호 확인</label>
+          <input type="password" id="confirmPassword" name="confirmPassword" placeholder="다시 입력">
         </div>
 
         <div class="button-section">
