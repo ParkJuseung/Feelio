@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <!-- 기본 스타일 -->
+  <link rel="stylesheet" href="/static/css/base.css">
+  <!-- 폰 스타일 -->
+  <link rel="stylesheet" href="/static/css/phone-style.css">
+  <!-- 프레임 스타일 -->
+  <link rel="stylesheet" href="/static/css/phone-frame.css">
+  <!-- 스크롤바 스타일 -->
+  <link rel="stylesheet" href="/static/css/scrollbar-style.css">
+  <!-- 앱 콘텐츠 스타일 -->
+  <link rel="stylesheet" href="/static/css/app-content.css">
+  <!-- 일기 리스트 스타일 -->
+  <style>
+body {
+margin: 0;
+font-family: 'Noto Sans KR', sans-serif;
+background-color: #f0f6ff;
+}
+
+/* phone 프레임 유지 */
+.phone-container {
+position: relative;
+width: 390px;
+height: 844px;
+margin: 0 auto;
+background-color: #f5f9ff;
+border-radius: 36px;
+overflow: hidden;
+box-shadow: 0 0 16px rgba(0, 0, 0, 0.1);
+}
+
+.status-bar {
+height: 44px;
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding: 0 16px;
+background-color: #fff;
+
+position: relative; /* 추가 */
+z-index: 30;         /* 헤더보다 더 높게! */
+}
+
+
+.time {
+font-size: 16px;
+font-weight: 600;
+}
+
+.app-header {
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+height: 72px;
+background-color: white;
+border-bottom: 1px solid #f0f0f0;
+position: relative; /* 추가 */
+z-index: 20; /* 추가: phone-frame 위로 올림 */
+}
+
+.app-title {
+font-size: 20px;
+font-weight: bold;
+color: #212121;
+}
+
+.app-container {
+height: calc(100% - 65px - 72px);
+overflow-y: auto;
+padding: 24px;
+}
+
+/* 수정 UI 스타일 */
+.myinfo-edit-container {
+display: flex;
+flex-direction: column;
+align-items: center;
+padding: 24px;
+gap: 24px;
+background: #ffffff;
+border-radius: 16px;
+box-shadow: 0 4px 12px rgba(0, 123, 255, 0.06);
+}
+
+.avatar-section .avatar {
+width: 100px;
+height: 100px;
+background-color: #f0f6ff;
+border-radius: 50%;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 48px;
+color: #007BFF;
+}
+
+.input-group {
+display: flex;
+flex-direction: column;
+gap: 8px;
+width: 100%;
+max-width: 342px;
+}
+
+.input-group label {
+font-weight: 600;
+font-size: 16px;
+color: #212121;
+}
+
+.input-group input {
+padding: 18px 20px;
+border-radius: 10px;
+border: 1px solid #FAFAFA;
+background: #FAFAFA;
+font-size: 16px;
+color: #212121;
+}
+
+.button-section {
+width: 100%;
+max-width: 342px;
+margin-top: 12px;
+}
+
+.save-btn {
+width: 100%;
+padding: 16px;
+background-color: #007BFF;
+color: white;
+font-size: 16px;
+font-weight: bold;
+border: none;
+border-radius: 10px;
+cursor: pointer;
+transition: background 0.3s;
+}
+
+.save-btn:hover {
+background-color: #0056b3;
+}
+
+/* 하단 메뉴바 */
+.menu-bar {
+position: absolute;
+bottom: 0;
+left: 0;
+right: 0;
+height: 65px;
+background-color: white;
+display: flex;
+justify-content: space-around;
+align-items: center;
+border-top: 1px solid #f0f0f0;
+box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.06);
+z-index: 10;
+}
+
+.menu-item {
+display: flex;
+flex-direction: column;
+align-items: center;
+color: #aaa;
+font-size: 11px;
+font-weight: 500;
+transition: all 0.3s ease;
+}
+
+.menu-item.active {
+color: #007BFF;
+}
+
+.menu-icon {
+font-size: 22px;
+margin-bottom: 4px;
+}
+.app-title {
+font-size: 20px;
+font-weight: bold;
+color: #5A6ACF; /* ✅ 연보라 색상으로 변경 */
+}
+
+.app-date {
+font-size: 14px;
+color: #999999;
+margin-top: 4px;
+}
+
+</style>
+  <title>내 프로필</title>
+</head>
+<body>
+
+<div class="phone-container">
+  <!-- 상태바 -->
+  <div class="notch"></div>
+  <div class="status-bar">
+    <div class="time">9:41</div>
+    <div class="status-icons">
+      <div class="signal">
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+      </div>
+    </div>
+  </div>
+  <!-- 앱 헤더 -->
+  <div class="app-header header-layout-center">
+    <div class="app-title">감다 일기</div>
+    <div class="app-date">내 정보 수정</div>
+  </div>
+
+  <!-- 컨텐츠 -->
+  <div class="app-container">
+    <div class="myinfo-edit-container">
+      <div class="avatar-section">
+        <div class="avatar">👤</div>
+      </div>
+
+      <form action="/profile" method="post">
+        <div class="input-group">
+          <label for="nickname">닉네임</label>
+          <input type="text" id="nickname" name="nickname" th:value="${user.nickname}">
+        </div>
+
+        <div class="input-group">
+          <label for="email" >이메일</label>
+          <input type="email" id="email" name="email" th:value="${user.email}">
+        </div>
+
+        <!-- 기존 비밀번호 -->
+        <div class="input-group">
+          <label for="currentPassword">기존 비밀번호</label>
+          <input type="password" id="currentPassword" name="currentPassword" placeholder="현재 비밀번호 입력">
+        </div>
+
+        <!-- 새 비밀번호 -->
+        <div class="input-group">
+          <label for="newPassword">새 비밀번호</label>
+          <input type="password" id="newPassword" name="newPassword" placeholder="새 비밀번호 입력">
+        </div>
+
+        <!-- 새 비밀번호 확인 -->
+        <div class="input-group">
+          <label for="confirmPassword">새 비밀번호 확인</label>
+          <input type="password" id="confirmPassword" name="confirmPassword" placeholder="다시 입력">
+        </div>
+
+        <div class="button-section">
+          <button type="submit" class="save-btn">저장하기</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 하단 메뉴 -->
+  <div class="menu-bar">
+    <div class="menu-item">
+      <div class="menu-icon">📖</div>
+      <div>일기</div>
+    </div>
+    <div class="menu-item">
+      <div class="menu-icon">💬</div>
+      <div>채팅</div>
+    </div>
+    <div class="menu-item">
+      <div class="menu-icon">📊</div>
+      <div>통계</div>
+    </div>
+    <div class="menu-item active">
+      <div class="menu-icon">⚙️</div>
+      <div>설정</div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

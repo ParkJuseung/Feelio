@@ -1,20 +1,20 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <!-- 기본 스타일 -->
-    <link rel="stylesheet" href="/static/css/base.css">
+    <link rel="stylesheet" href="/css/base.css">
     <!-- 폰 스타일 -->
-    <link rel="stylesheet" href="/static/css/phone-style.css">
+    <link rel="stylesheet" href="/css/phone-style.css">
     <!-- 프레임 스타일 -->
-    <link rel="stylesheet" href="/static/css/phone-frame.css">
+    <link rel="stylesheet" href="/css/phone-frame.css">
     <!-- 스크롤바 스타일 -->
-    <link rel="stylesheet" href="/static/css/scrollbar-style.css">
+    <link rel="stylesheet" href="/css/scrollbar-style.css">
     <!-- 앱 콘텐츠 스타일 -->
-    <link rel="stylesheet" href="/static/css/app-content.css">
+    <link rel="stylesheet" href="/css/app-content.css">
     <!-- 일기 리스트 스타일 -->
     <style>
         .app-container {
@@ -409,7 +409,7 @@
                 <div class="menu-icon">📊</div>
                 <div>통계</div>
             </div>
-            <div class="menu-item">
+            <div class="menu-item" onclick="location.href='/mypage'">
                 <div class="menu-icon">⚙️</div>
                 <div>설정</div>
             </div>
