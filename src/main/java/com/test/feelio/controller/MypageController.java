@@ -32,4 +32,13 @@ public class MypageController {
     public String updateProfile() {
         return "redirect:/mypage";
     }
+
+    @GetMapping("/mypage/gallery")
+    public String showGallery(HttpSession session, Model model) {
+        User user = (User) session.getAttribute("user"); // 세션에서 User 꺼내기
+        if (user != null) {
+            model.addAttribute("user", user); // Thymeleaf에 전달
+        }
+        return "pages/gallery";
+    }
 }

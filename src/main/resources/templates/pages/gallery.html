@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <!-- 기본 스타일 -->
+    <link rel="stylesheet" th:href="@{/css/base.css}">
+    <!-- 폰 배경·폰 노치·상태바 등 -->
+    <link rel="stylesheet" th:href="@{/css/phone-style.css}">
+    <!-- 폰 프레임·그림자 -->
+    <link rel="stylesheet" th:href="@{/css/phone-frame.css}">
+    <!-- 스크롤바 꾸미기 -->
+    <link rel="stylesheet" th:href="@{/css/scrollbar-style.css}">
+    <!-- 앱 내부 기본 레이아웃 -->
+    <link rel="stylesheet" th:href="@{/css/app-content.css}">
+
+    <style>
+        /* ---------------------------------------------------
+           홈 화면과 똑같은 레이아웃: 헤더–스크롤영역–메뉴바
+           --------------------------------------------------- */
+        .app-container {
+            position: relative;
+            height: 100%;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .gallery-list-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0 16px 70px; /* 메뉴바 높이만큼 아래 여백 */
+        }
+
+        /* ---------------------------------------------------
+           기존 갤러리 전용 스타일
+           --------------------------------------------------- */
+        .gallery-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            padding: 15px 0 10px; /* 좌우 패딩은 부모에서 */
+            background-color: #fafafa;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .gallery-controls button {
+            background-color: #f1f1f1;
+            border: none;
+            border-radius: 25px;
+            padding: 8px 16px;
+            font-size: 14px;
+            color: #555;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        .gallery-controls button.active {
+            background: linear-gradient(135deg, #5A6ACF, #879CFF);
+            color: white;
+            box-shadow: 0 4px 10px rgba(90, 106, 207, 0.3);
+        }
+
+        .upload-button {
+            display: flex;
+            justify-content: center;
+            margin: 0 0 16px; /* 위쪽은 gallery-controls 밑에서 공간 확보 */
+        }
+        .upload-label {
+            background: #5A6ACF;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .upload-button input[type="file"] {
+            display: none;
+        }
+
+        .gallery-section {
+            /* month/title은 section 위에, 이미지는 그리드 안으로 */
+        }
+        .gallery-month {
+            font-size: 14px;
+            font-weight: bold;
+            margin: 8px 0;
+            color: #444;
+        }
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+        .gallery-item img {
+            width: 100%;
+            aspect-ratio: 1/1.1;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal.active {
+            display: flex;
+        }
+        .modal img {
+            max-width: 90%;
+            max-height: 80%;
+            border-radius: 10px;
+        }
+
+        /* ---------------------------------------------------
+           메뉴바 (항상 화면 하단에 고정)
+           --------------------------------------------------- */
+        .menu-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 65px;
+            background-color: white;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.06);
+            border-top: 1px solid #f0f0f0;
+            z-index: 2;
+        }
+        .menu-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #aaa;
+            font-size: 11px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            padding: 8px 0;
+        }
+        .menu-item.active {
+            color: #5A6ACF;
+        }
+        .menu-icon {
+            font-size: 22px;
+            margin-bottom: 4px;
+        }
+    </style>
+</head>
+
+<body>
+<div class="phone-container">
+    <!-- 앱 내부 전체 -->
+    <div class="app-container">
+        <!-- 1) 헤더 -->
+        <div class="app-header header-layout-center">
+            <div class="app-title">감다 갤러리</div>
+            <div class="app-date">나의 감정 순간 포착</div>
+        </div>
+
+        <!-- 2) 스크롤 영역: 갤러리 전체 -->
+        <div class="gallery-list-container">
+            <!-- 필터 -->
+            <div class="gallery-controls">
+                <button class="active" onclick="filterEmotion('all')">전체</button>
+                <button onclick="filterEmotion('기쁨')">기쁨</button>
+                <button onclick="filterEmotion('슬픔')">슬픔</button>
+                <button onclick="filterEmotion('화남')">화남</button>
+            </div>
+
+            <!-- 업로드 -->
+            <div class="upload-button">
+                <label class="upload-label" for="upload-input">사진 업로드</label>
+                <input type="file" id="upload-input" accept="image/*">
+            </div>
+
+            <!-- 갤러리 -->
+            <div class="gallery-section">
+                <div class="gallery-month">2023년 10월</div>
+                <div class="gallery-grid">
+                    <div class="gallery-item emotion-기쁨">
+                        <img src="${pageContext.request.contextPath}/asset/images/2026.jpg" alt="img" onclick="openModal(this)">
+                    </div>
+                    <!-- 이하 생략: emotion-슬픔, emotion-화남 등 -->
+                </div>
+            </div>
+
+            <!-- 모달 -->
+            <div class="modal" id="imgModal" onclick="closeModal()">
+                <img id="modalImg" src="">
+            </div>
+        </div>
+        <!-- // gallery-list-container 끝 -->
+
+        <!-- 3) 메뉴 바 -->
+        <div class="menu-bar">
+            <div class="menu-item">
+                <div class="menu-icon">📖</div>
+                <div>일기</div>
+            </div>
+            <div class="menu-item">
+                <div class="menu-icon">💬</div>
+                <div>채팅</div>
+            </div>
+            <div class="menu-item">
+                <div class="menu-icon">📊</div>
+                <div>통계</div>
+            </div>
+            <div class="menu-item active">
+                <div class="menu-icon">🖼️</div>
+                <div>갤러리</div>
+            </div>
+        </div>
+    </div>
+    <!-- // app-container 끝 -->
+</div>
+<!-- // phone-container 끝 -->
+
+<!-- 폰 프레임 + 그림자 -->
+<div class="frame-container">
+    <div class="phone-frame"></div>
+</div>
+<div class="phone-shadow"></div>
+
+<script>
+    function openModal(img) {
+        const modal = document.getElementById('imgModal');
+        const modalImg = document.getElementById('modalImg');
+        modalImg.src = img.src;
+        modal.classList.add('active');
+    }
+    function closeModal() {
+        document.getElementById('imgModal').classList.remove('active');
+    }
+    function filterEmotion(emotion) {
+        const allItems = document.querySelectorAll('.gallery-item');
+        document.querySelectorAll('.gallery-controls button').forEach(btn => btn.classList.remove('active'));
+        const selected = [...document.querySelectorAll('.gallery-controls button')]
+            .find(b => (emotion==='all' ? b.textContent==='전체' : b.textContent.includes(emotion)));
+        selected?.classList.add('active');
+        allItems.forEach(item => {
+            item.style.display = (emotion==='all' || item.classList.contains('emotion-'+emotion)) ? 'block' : 'none';
+        });
+    }
+</script>
+</body>
+</html>
