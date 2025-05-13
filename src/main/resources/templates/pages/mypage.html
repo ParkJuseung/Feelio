@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <!-- 기본 스타일 -->
+  <link rel="stylesheet" th:href="@{/css/base.css}">
+  <!-- 폰 스타일 -->
+  <link rel="stylesheet" th:href="@{/css/phone-style.css}">
+  <!-- 프레임 스타일 -->
+  <link rel="stylesheet" th:href="@{/css/phone-frame.css}">
+  <!-- 스크롤바 스타일 -->
+  <link rel="stylesheet" th:href="@{/css/scrollbar-style.css}">
+  <!-- 앱 콘텐츠 스타일 -->
+  <link rel="stylesheet" th:href="@{/css/app-content.css}">
+
+  <style>
+.mypage-container {
+padding: 16px;
+background-color: #f0f6ff;
+height: 100%;
+overflow-y: auto;
+}
+
+.profile-card, .menu-list {
+background-color: #ffffff;
+border-radius: 16px;
+padding: 16px;
+margin-bottom: 16px;
+box-shadow: 0 4px 12px rgba(0, 123, 255, 0.1);
+border: 1px solid #e0f0ff;
+}
+
+.profile-card {
+display: flex;
+align-items: center;
+gap: 16px;
+}
+
+.profile-icon {
+width: 56px;
+height: 56px;
+border-radius: 50%;
+background-color: #e0f0ff;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 26px;
+color: #007BFF;
+}
+
+.profile-info {
+display: flex;
+flex-direction: column;
+gap: 4px;
+}
+
+.profile-info .username {
+font-weight: bold;
+color: #212121;
+font-size: 18px;
+}
+
+.profile-info .useremail {
+font-size: 14px;
+color: #616161;
+}
+
+.menu-item {
+padding: 12px 0;
+display: flex;
+justify-content: space-between;
+align-items: center;
+border-bottom: 1px solid #f5faff;
+font-size: 16px;
+color: #333;
+}
+
+.menu-item:last-child {
+border-bottom: none;
+}
+
+.logout-btn {
+color: #ff4d4d;
+font-weight: bold;
+}
+
+.menu-item .arrow-right {
+font-size: 14px;
+color: #bdbdbd;
+}
+
+.menu-item {
+display: flex;
+flex-direction: column;
+align-items: center;
+color: #aaa;
+font-size: 11px;
+font-weight: 500;
+transition: all 0.3s ease;
+padding: 8px 0;
+}
+
+.menu-item.active {
+color: #007BFF;
+}
+
+.menu-icon {
+font-size: 22px;
+margin-bottom: 4px;
+}
+
+.phone-container {
+position: relative;
+}
+
+.phone-container {
+position: relative;
+height: 810px; /* 또는 고정 높이 설정 */
+overflow: hidden;
+border-radius: 36px;
+box-shadow: 0 0 16px rgba(0, 0, 0, 0.1);
+background-color: #f5f9ff;
+}
+
+/* 하단 메뉴바를 phone-container 기준으로 고정 */
+.menu-bar {
+position: absolute;
+bottom: 0;
+left: 0;
+right: 0;
+height: 65px;
+background-color: white;
+display: flex;
+justify-content: space-around;
+align-items: center;
+box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.06);
+border-top: 1px solid #f0f0f0;
+z-index: 100;
+}
+
+/* 상단 콘텐츠 높이 계산 */
+.app-container {
+height: calc(100% - 65px);
+overflow-y: auto;
+}
+</style>
+</head>
+<body>
+<!-- 프레임 컨테이너 - 항상 최상위에 위치 -->
+<div class="frame-container">
+  <div class="phone-frame"></div>
+</div>
+<div class="phone-shadow"></div>
+
+<div class="phone-container">
+
+  <!-- 노치 및 상태바 -->
+  <div class="notch"></div>
+  <div class="status-bar">
+    <div class="time">9:41</div>
+    <div class="status-icons">
+      <div class="signal">
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+      </div>
+    </div>
+  </div>
+
+
+
+  <!-- 앱 컨텐츠 -->
+  <div class="app-container">
+    <div class="app-header header-layout-center">
+      <div class="app-title">감다 일기</div>
+      <div class="app-date">마이페이지</div>
+    </div>
+    <div class="mypage-container">
+      <div class="profile-card" onclick="location.href='/mypage/profile'">
+        <div class="profile-icon">👤</div>
+        <div class="profile-info">
+          <div class="nickname" th:text="${user.nickname}">홍길동</div>
+          <div class="useremail" th:text="${user.email}">hong@gmail.com</div>
+        </div>
+      </div>
+
+      <div class="menu-list">
+        <div class="menu-item">
+          <span>즐겨찾기</span><span class="arrow-right"></span>
+        </div>
+        <div class="menu-item">
+          <span>갤러리</span><span class="arrow-right"></span>
+        </div>
+        <div class="menu-item">
+          <span>알림 설정</span><span class="arrow-right"></span>
+        </div>
+        <div class="menu-item">
+          <span>세부 설정</span><span class="arrow-right"></span>
+        </div>
+      </div>
+
+      <div class="menu-list">
+        <div class="menu-item">
+          <span>보안 설정</span><span class="arrow-right"></span>
+        </div>
+        <div class="menu-item">
+          <span>연결 계정관리</span><span class="arrow-right"></span>
+        </div>
+        <div class="menu-item">
+          <span>도움말</span><span class="arrow-right"></span>
+        </div>
+        <div class="menu-item logout-btn">
+          <span>로그아웃</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+
+  <!-- 메뉴 바 -->
+  <div class="menu-bar">
+    <div class="menu-item active">
+      <div class="menu-icon">📖</div>
+      <div>일기</div>
+    </div>
+    <div class="menu-item">
+      <div class="menu-icon">💬</div>
+      <div>채팅</div>
+    </div>
+    <div class="menu-item">
+      <div class="menu-icon">📊</div>
+      <div>통계</div>
+    </div>
+    <div class="menu-item">
+      <div class="menu-icon">⚙️</div>
+      <div>설정</div>
+    </div>
+  </div>
+
+
+
+
+</div>
+</body>
+</html>
