@@ -14,4 +14,8 @@ public interface FeedbackTemplateRepository extends JpaRepository<FeedbackTempla
     @Query("SELECT ft FROM FeedbackTemplate ft WHERE ft.emotion.id = :emotionId AND ft.isPositive = true ORDER BY FUNCTION('RAND')")
     Optional<FeedbackTemplate> findRandomPositiveFeedbackByEmotion(@Param("emotionId") Long emotionId);
 
+    boolean existsByFeedbackTextAndEmotionId(String feedbackText, Long emotionId);
+
+    @Query("SELECT ft FROM FeedbackTemplate ft WHERE ft.diary.id = :diaryId")
+    Optional<FeedbackTemplate> findByDiaryId(@Param("diaryId") Long diaryId);
 }

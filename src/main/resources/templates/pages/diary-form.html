@@ -11,13 +11,15 @@
 
 
     <!-- 기본 스타일 -->
-    <link rel="stylesheet" href="/static/css/base.css">
+    <link rel="stylesheet" th:href="@{/css/base.css}">
     <!-- 폰 스타일 -->
-    <link rel="stylesheet" href="/static/css/phone-style.css">
+    <link rel="stylesheet" th:href="@{/css/phone-style.css}">
     <!-- 프레임 스타일 -->
-    <link rel="stylesheet" href="/static/css/phone-frame.css">
+    <link rel="stylesheet" th:href="@{/css/phone-frame.css}">
     <!-- 스크롤바 스타일 -->
-    <link rel="stylesheet" href="/static/css/scrollbar-style.css">
+    <link rel="stylesheet" th:href="@{/css/scrollbar-style.css}">
+    <!-- 앱 콘텐츠 스타일 -->
+    <link rel="stylesheet" th:href="@{/css/app-content.css}">
     <title>일기 작성 - 감다</title>
 
     <style>
@@ -560,18 +562,30 @@
             alert('저장 중입니다. 잠시 기다려주세요.');
         }
 
+
+        console.log("저장 시작: 제목=" + title + ", 내용=" + content.substring(0, 30) + "..., 날짜=" + date);
+
         const formData = new FormData();
         formData.append('title', title);
         formData.append('content', content);
         formData.append('diaryDate', date);
         formData.append('weather', weather);
 
-        // 사진 파일 추가
+        // 사진 파일 추가 (디버깅 추가)
         const photoInput = document.getElementById('photo-file-input');
         if (photoInput.files.length > 0) {
+            console.log("사진 파일 첨부: " + photoInput.files.length + "개");
             for (let i = 0; i < photoInput.files.length; i++) {
+                console.log("파일 " + (i+1) + ": " + photoInput.files[i].name + " (" + photoInput.files[i].size + " bytes)");
                 formData.append('photos', photoInput.files[i]);
             }
+        } else {
+            console.log("첨부된 사진 없음");
+        }
+
+        // 폼데이터 확인 (디버깅)
+        for (let pair of formData.entries()) {
+            console.log(pair[0] + ': ' + (pair[0] === 'photos' ? pair[1].name : pair[1]));
         }
 
         // CSRF 토큰 추가

@@ -1,8 +1,6 @@
 package com.test.feelio.controller;
 
-import com.test.feelio.dto.DiaryDTO;
-import com.test.feelio.dto.EmotionAnalysisDTO;
-import com.test.feelio.dto.MusicDTO;
+import com.test.feelio.dto.*;
 import com.test.feelio.entity.User;
 import com.test.feelio.repository.UserRepository;
 import com.test.feelio.service.DiaryService;
@@ -173,9 +171,75 @@ public class DiaryController {
 
     // AI 분석 결과 페이지
     @GetMapping("/diary/{id}/analysis")
-    public String analysisPage(@PathVariable("id") Long diaryId,
-                               @AuthenticationPrincipal User user,
-                               Model model) {
+    public String analysisPage(@PathVariable("id") Long diaryId, Model model) {
+        // SecurityContext에서 인증 정보 가져오기
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated() ||
+                "anonymousUser".equals(authentication.getPrincipal())) {
+            return "redirect:/login";
+        }
+
+        // 인증된 사용자 정보 가져오기
+        Object principal = authentication.getPrincipal();
+        User user = null;
+
+        // OAuth2User 타입인 경우
+        if (principal instanceof OAuth2User) {
+            OAuth2User oauth2User = (OAuth2User) principal;
+            String email = null;
+            String provider = null;
+            String providerId = null;
+
+            // Google
+            if (oauth2User.getAttributes().containsKey("email")) {
+                email = oauth2User.getAttribute("email");
+                provider = "google";
+                providerId = oauth2User.getAttribute("sub");
+            }
+
+            // 이메일이 존재하는 경우 먼저 이메일로 검색
+            if (email != null) {
+                try {
+                    user = userRepository.findByEmail(email).orElse(null);
+                } catch (Exception e) {
+                    System.out.println("이메일로 사용자 검색 실패: " + e.getMessage());
+                }
+            }
+
+            // 이메일로 찾지 못한 경우 provider + providerId로 검색
+            if (user == null && provider != null && providerId != null) {
+                try {
+                    user = userRepository.findByProviderAndProviderId(provider, providerId).orElse(null);
+                } catch (Exception e) {
+                    System.out.println("Provider/ProviderId로 사용자 검색 실패: " + e.getMessage());
+                }
+            }
+        }
+        // UserDetails 타입인 경우 (일반 로그인)
+        else if (principal instanceof UserDetails) {
+            String username = ((UserDetails) principal).getUsername();
+            try {
+                user = userRepository.findByEmail(username).orElse(null);
+            } catch (Exception e) {
+                System.out.println("Username으로 사용자 검색 실패: " + e.getMessage());
+            }
+        }
+        // String 타입인 경우 (기본 인증)
+        else if (principal instanceof String) {
+            try {
+                user = userRepository.findByEmail((String) principal).orElse(null);
+            } catch (Exception e) {
+                System.out.println("Username(String)으로 사용자 검색 실패: " + e.getMessage());
+            }
+        }
+
+        // 사용자를 찾지 못한 경우
+        if (user == null) {
+            System.out.println("인증된 사용자를 찾을 수 없습니다.");
+            return "redirect:/login?error=user_not_found";
+        }
+
         DiaryDTO diary = diaryService.getDiary(diaryId);
 
         // 권한 체크
@@ -184,6 +248,38 @@ public class DiaryController {
         }
 
         EmotionAnalysisDTO analysis = diary.getEmotionAnalysis();
+
+        // 분석 결과 로그 출력
+        System.out.println("===== AI 분석 결과 시작 =====");
+        System.out.println("일기 ID: " + diaryId);
+        if (analysis != null) {
+            System.out.println("긍정적 피드백: " + analysis.getPositiveFeedback());
+            System.out.println("주요 감정: " + (analysis.getPrimaryEmotion() != null ?
+                    analysis.getPrimaryEmotion().getEmotionName() : "없음"));
+
+            if (analysis.getEmotions() != null) {
+                System.out.println("감정 목록 (" + analysis.getEmotions().size() + "개):");
+                for (EmotionPercentageDTO emotion : analysis.getEmotions()) {
+                    System.out.println("  - " + emotion.getEmotionName() + ": " +
+                            emotion.getPercentage() + "% (주요감정: " + emotion.isPrimary() + ")");
+                }
+            } else {
+                System.out.println("감정 목록: 없음");
+            }
+
+            if (analysis.getActivityRecommendations() != null) {
+                System.out.println("추천 활동 (" + analysis.getActivityRecommendations().size() + "개):");
+                for (ActivityRecommendationDTO activity : analysis.getActivityRecommendations()) {
+                    System.out.println("  - " + activity.getActivity() + ": " + activity.getReason());
+                }
+            } else {
+                System.out.println("추천 활동: 없음");
+            }
+        } else {
+            System.out.println("분석 결과가 없습니다.");
+        }
+        System.out.println("===== AI 분석 결과 종료 =====");
+
 
         // 음악 추천 조회
         if (analysis != null && analysis.getPrimaryEmotion() != null) {
@@ -196,4 +292,5 @@ public class DiaryController {
         model.addAttribute("analysis", analysis);
         return "pages/ai-result";
     }
+
 }

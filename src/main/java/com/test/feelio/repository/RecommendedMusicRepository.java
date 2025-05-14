@@ -13,7 +13,7 @@ public interface RecommendedMusicRepository extends JpaRepository<RecommendedMus
 
     List<RecommendedMusic> findByEmotionId(Long emotionId);
 
-    @Query(value = "SELECT * FROM RECOMMENDED_MUSIC WHERE EMOTION_ID = :emotionId ORDER BY FUNCTION('RAND') LIMIT :limit",
+    @Query(value = "SELECT * FROM RECOMMENDED_MUSIC WHERE EMOTION_ID = :emotionId ORDER BY DBMS_RANDOM.VALUE FETCH FIRST :limit ROWS ONLY",
             nativeQuery = true)
     List<RecommendedMusic> findRandomMusicByEmotion(@Param("emotionId") Long emotionId, @Param("limit") int limit);
 }

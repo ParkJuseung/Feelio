@@ -12,4 +12,5 @@ import java.util.Optional;
 public interface ActivityEffectRepository extends JpaRepository<ActivityEffect, Long> {
     @Query("SELECT AVG(ae.averageChangeScore) FROM ActivityEffect ae WHERE ae.activityName = :activityName")
     Optional<Double> findAverageChangeScore(@Param("activityName") String activityName);
+    Optional<ActivityEffect> findByEmotionIdAndActivityName(Long emotionId, String activityName);
 }

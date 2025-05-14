@@ -1,11 +1,13 @@
 package com.test.feelio.entity;
 
+import com.test.feelio.entity.Diary;
+import com.test.feelio.entity.Emotion;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
@@ -31,6 +33,11 @@ public class FeedbackTemplate {
 
     @Column(name = "IS_POSITIVE")
     private boolean isPositive = true;
+
+    // 일기 참조 추가 (기존 테이블에 컬럼 추가 필요)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "DIARY_ID")
+    private Diary diary;
 
     @Column(name = "CREATED_AT", nullable = false, updatable = false)
     private LocalDateTime createdAt;
