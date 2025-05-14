@@ -161,7 +161,7 @@ overflow-y: auto;
   <!-- 노치 및 상태바 -->
   <div class="notch"></div>
   <div class="status-bar">
-    <div class="time">9:41</div>
+    <div class="time">--:--</div>
     <div class="status-icons">
       <div class="signal">
         <div></div>
@@ -245,8 +245,22 @@ overflow-y: auto;
   </div>
 
 
-
-
 </div>
+<script>
+  function updateTime() {
+    const now = new Date();
+    const hours = now.getHours();
+    const minutes = now.getMinutes().toString().padStart(2, '0');
+    const formattedTime = `${hours}:${minutes}`;
+    document.querySelector('.status-bar .time').textContent = formattedTime;
+  }
+
+  // 페이지 로드 시 한 번 실행
+  updateTime();
+
+  // 이후 1분마다 갱신
+  setInterval(updateTime, 60000);
+</script>
+
 </body>
 </html>
