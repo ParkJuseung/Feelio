@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feelio</title>
+
+    <!-- 기본 스타일 -->
+    <link rel="stylesheet" href="/static/css/base.css">
+    <!-- 폰 스타일 -->
+    <link rel="stylesheet" href="/static/css/phone-style.css">
+    <!-- 프레임 스타일 -->
+    <link rel="stylesheet" href="/static/css/phone-frame.css">
+    <!-- 스크롤바 스타일 -->
+    <link rel="stylesheet" href="/static/css/scrollbar-style.css">
+
+    <link rel="stylesheet" href="/static/css/app-content.css">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            overflow: hidden;
+            position: relative;
+        }
+        .scrollable-content {
+            flex: 1;
+            overflow-y: auto;
+            padding-bottom: 150px; /* 버튼/메뉴바가 안 가리도록 여유 줌 */
+        }
+        .chart-container {
+            padding: 20px;
+            margin: 20px 18px;
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-neumorphic);
+            border: 1px solid rgba(224, 230, 255, 0.7);
+        }
+        .chart-container h3 {
+            text-align: center;
+            font-family: 'GmarketSans', sans-serif;
+            font-size: 16px;
+            color: var(--primary-color);
+            margin-bottom: 16px;
+        }
+        .toggle-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 0 18px 16px;
+        }
+        .toggle-buttons button {
+            padding: 8px 16px;
+            font-size: 14px;
+            font-family: 'GmarketSans', sans-serif;
+            border-radius: 20px;
+            border: 1px solid var(--primary-color);
+            background-color: white;
+            color: var(--primary-color);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .toggle-buttons button.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        .mood-stability {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            margin: 20px 18px;
+            padding: 20px;
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-neumorphic);
+            border: 1px solid rgba(224, 230, 255, 0.7);
+        }
+        .mood-stability canvas {
+            flex: 1;
+        }
+        .mood-stability .left, .mood-stability .right {
+            flex: 1;
+            position: relative;
+        }
+        .mood-stability h4 {
+            font-family: 'GmarketSans', sans-serif;
+            font-size: 14px;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+            text-align: center;
+        }
+        .mood-score-label {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--primary-color);
+            font-family: 'GmarketSans', sans-serif;
+            pointer-events: none;
+        }
+        .mood-trigger-section {
+            margin: 20px 18px;
+            padding: 20px;
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-neumorphic);
+            border: 1px solid rgba(224, 230, 255, 0.7);
+        }
+
+        .mood-trigger-section h4 {
+            font-size: 15px;
+            font-family: 'GmarketSans', sans-serif;
+            margin: 20px 0 10px;
+            color: var(--primary-color);
+        }
+
+        .trigger-list {
+            display: flex;
+            gap: 14px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+            margin-right: -6px; /* 스크롤 끝이 너무 잘리지 않도록 */
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .trigger-item {
+            flex: 0 0 auto;
+            width: 90px;
+            text-align: center;
+            font-size: 13px;
+            font-family: 'S-CoreDream', sans-serif;
+            color: var(--text-color);
+            scroll-snap-align: start;
+        }
+
+        .trigger-image-container {
+            position: relative;
+            width: 90px;
+            height: 90px;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: var(--shadow-light);
+        }
+
+        .trigger-image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .trigger-count {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            background-color: rgba(0, 0, 0, 0.6);
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+            padding: 2px 6px;
+            border-radius: 12px;
+        }
+
+        .menu-bar {
+            position: absolute;
+            bottom: 70px;
+            left: 0;
+            right: 0;
+            height: 65px;
+            background-color: white;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.06);
+            border-top: 1px solid #f0f0f0;
+        }
+        .menu-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #aaa;
+            font-size: 11px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            padding: 8px 0;
+            cursor: pointer;
+        }
+        .menu-item.active {
+            color: #007BFF;
+        }
+        .menu-icon {
+            font-size: 22px;
+            margin-bottom: 4px;
+        }
+        .new-diary-button {
+            position: absolute;
+            bottom: 140px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            border-radius: 25px;
+            background: linear-gradient(135deg, #007BFF, #00a1ff);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.4);
+            z-index: 10;
+            border: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .new-diary-button:active {
+            transform: scale(0.92);
+        }
+        canvas { max-width: 100%; }
+    </style>
+</head>
+<body>
+<!-- 프레임 컨테이너 - 항상 최상위에 위치 -->
+<div class="frame-container">
+    <div class="phone-frame"></div>
+</div>
+
+<div class="phone-container">
+    <div class="notch"></div>
+    <div class="status-bar">
+        <div class="time">9:41</div>
+        <div class="status-icons">
+            <div class="signal"><div></div><div></div><div></div><div></div></div>
+        </div>
+    </div>
+
+    <div class="app-container">
+        <div class="app-header header-layout-center">
+            <div class="app-title">감정 통계</div>
+            <div class="app-date">2025년 4월</div><!--날짜 계산 필요-->
+        </div>
+
+        <!-- 스크롤 가능한 영역 -->
+        <div class="scrollable-content">
+            <div class="toggle-buttons">
+                <button id="weeklyBtn" class="active">주간</button>
+                <button id="monthlyBtn">월간</button>
+            </div>
+
+            <div class="chart-container">
+                <h3 id="chartTitle">📅 주간 감정 변화</h3>
+                <canvas id="emotionChart"></canvas>
+            </div>
+
+            <!-- 무드 안정성 영역 -->
+            <div class="mood-stability">
+                <div class="left">
+                    <h4>무드 안정성 점수</h4>
+                    <canvas id="moodPie"></canvas>
+                    <div class="mood-score-label" id="moodScoreLabel">80</div><!--점수 계산 필요-->
+                </div>
+                <div class="right">
+                    <h4>감정 파형</h4>
+                    <canvas id="moodPulse"></canvas>
+                </div>
+            </div>
+
+            <div class="mood-trigger-section">
+                <!--반복문 시작-->
+                <h4>😊 이럴 때 기분이 좋아졌어요</h4>
+                <div class="trigger-list">
+                    <div class="trigger-item">
+                        <div class="trigger-image-container">
+                            <img src="img/picnic.jpg" alt="나들이">
+                            <div class="trigger-count">+5</div><!--숫자 누적 -->
+                        </div>
+                        <div class="trigger-label">나들이</div>
+                    </div>
+                    <div class="trigger-item">
+                        <div class="trigger-image-container">
+                            <img src="img/vacation.jpg" alt="휴가">
+                            <div class="trigger-count">+3</div><!--숫자 누적 -->
+                        </div>
+                        <div class="trigger-label">휴가</div>
+                    </div>
+                    <div class="trigger-item">
+                        <div class="trigger-image-container">
+                            <img src="img/friends.jpg" alt="친구 만남">
+                            <div class="trigger-count">+4</div><!--숫자 누적 -->
+                        </div>
+                        <div class="trigger-label">친구 만남</div>
+                    </div>
+                </div>
+                <!--반복문종료-->
+
+                <!--반복문 시작-->
+                <h4>😞 이럴 때 기분이 나빠졌어요</h4>
+                <div class="trigger-list">
+                    <div class="trigger-item">
+                        <div class="trigger-image-container">
+                            <img src="img/work.jpg" alt="야근">
+                            <div class="trigger-count">+4</div><!--숫자 누적 -->
+                        </div>
+                        <div class="trigger-label">야근</div>
+                    </div>
+                    <div class="trigger-item">
+                        <div class="trigger-image-container">
+                            <img src="img/rain.jpg" alt="우중충한 날씨">
+                            <div class="trigger-count">+2</div><!--숫자 누적 -->
+                        </div>
+                        <div class="trigger-label">비 오는 날</div>
+                    </div>
+                    <div class="trigger-item">
+                        <div class="trigger-image-container">
+                            <img src="img/traffic.jpg" alt="출근길 정체">
+                            <div class="trigger-count">+3</div><!--숫자 누적 -->
+                        </div>
+                        <div class="trigger-label">출근길 정체</div>
+                    </div>
+                </div>
+                <!--반복문종료-->
+
+            </div>
+
+            <button class="new-diary-button">+</button>
+
+            <div class="menu-bar">
+                <div class="menu-item">
+                    <div class="menu-icon">🏠</div>
+                    <div>홈</div>
+                </div>
+                <div class="menu-item active">
+                    <div class="menu-icon">📊</div>
+                    <div>통계</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-icon">📆</div>
+                    <div>달력</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-icon">⚙️</div>
+                    <div>설정</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const weeklyData = {
+            labels: ['월', '화', '수', '목', '금', '토', '일'],
+            /*['행복', '만족', '설렘', '평온', '불안', '슬픔', '분노']*/
+            datasets: [{
+                label: '감정 점수',
+                data: [60, 70, 50, 80, 65, 75, 90],
+                backgroundColor: ['#f9c6c9','#fdd7aa','#fef4b0','#b1d7b4','#a3c9f9','#cbb2ef','#f8a5d6'],
+                borderRadius: 12
+            }]
+        };
+
+        const monthlyData = {
+            labels: ['1주차', '2주차', '3주차', '4주차'],
+            datasets: [{
+                label: '감정 점수 평균',
+                data: [65, 70, 75, 60],
+                borderColor: '#7b8cde',
+                backgroundColor: 'rgba(123, 140, 222, 0.2)',
+                tension: 0.3,
+                fill: true,
+                pointBackgroundColor: '#7b8cde',
+                pointRadius: 5
+            }]
+        };
+
+        const config = {
+            type: 'bar',
+            data: weeklyData,
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { callbacks: { label: ctx => `감정 점수: ${ctx.raw}` } }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: { stepSize: 20, color: '#7c8ba1' },
+                        grid: { color: 'rgba(200,200,200,0.1)' }
+                    },
+                    x: { ticks: { color: '#7c8ba1' } }
+                }
+            }
+        };
+
+        const ctx = document.getElementById('emotionChart').getContext('2d');
+        let chart = new Chart(ctx, config);
+
+        document.getElementById('weeklyBtn').addEventListener('click', () => {
+            chart.config.type = 'bar';
+            chart.data = weeklyData;
+            chart.update();
+            document.getElementById('chartTitle').textContent = '📅 주간 감정 변화';
+            toggleActive('weeklyBtn', 'monthlyBtn');
+        });
+
+        document.getElementById('monthlyBtn').addEventListener('click', () => {
+            chart.config.type = 'line';
+            chart.data = monthlyData;
+            chart.update();
+            document.getElementById('chartTitle').textContent = '🗓️ 월간 감정 변화';
+            toggleActive('monthlyBtn', 'weeklyBtn');
+        });
+
+        function toggleActive(activeId, inactiveId) {
+            document.getElementById(activeId).classList.add('active');
+            document.getElementById(inactiveId).classList.remove('active');
+        }
+
+        // 무드 안정성 원형 그래프
+        const moodScore = 80;
+        new Chart(document.getElementById('moodPie'), {
+            type: 'doughnut',
+            data: {
+                labels: ['안정성', '변동성'],
+                datasets: [{
+                    data: [moodScore, 100 - moodScore],
+                    backgroundColor: ['#7b8cde', '#e0e6ff'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                cutout: '70%',
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+        document.getElementById('moodScoreLabel').textContent = `${moodScore}`;
+
+        // 무드 파형 그래프
+        new Chart(document.getElementById('moodPulse'), {
+            type: 'line',
+            data: {
+                labels: ['1', '2', '3', '4', '5', '6', '7'],
+                datasets: [{
+                    label: '감정 파형',
+                    data: [60, 80, 40, 70, 50, 90, 60],
+                    borderColor: '#ff6b81',
+                    backgroundColor: 'transparent',
+                    tension: 0.4,
+                    pointRadius: 0,
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { display: false },
+                    x: { display: false }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
