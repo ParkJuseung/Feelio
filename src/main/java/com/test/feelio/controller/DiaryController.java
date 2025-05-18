@@ -138,9 +138,75 @@ public class DiaryController {
 
     // 일기 수정 페이지
     @GetMapping("/diary/edit/{id}")
-    public String editPage(@PathVariable("id") Long diaryId,
-                           @AuthenticationPrincipal User user,
-                           Model model) {
+    public String editPage(@PathVariable("id") Long diaryId, Model model) {
+        // SecurityContext에서 인증 정보 가져오기
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated() ||
+                "anonymousUser".equals(authentication.getPrincipal())) {
+            return "redirect:/login";
+        }
+
+        // 인증된 사용자 정보 가져오기
+        Object principal = authentication.getPrincipal();
+        User user = null;
+
+        // OAuth2User 타입인 경우
+        if (principal instanceof OAuth2User) {
+            OAuth2User oauth2User = (OAuth2User) principal;
+            String email = null;
+            String provider = null;
+            String providerId = null;
+
+            // Google
+            if (oauth2User.getAttributes().containsKey("email")) {
+                email = oauth2User.getAttribute("email");
+                provider = "google";
+                providerId = oauth2User.getAttribute("sub");
+            }
+
+            // 이메일이 존재하는 경우 먼저 이메일로 검색
+            if (email != null) {
+                try {
+                    user = userRepository.findByEmail(email).orElse(null);
+                } catch (Exception e) {
+                    System.out.println("이메일로 사용자 검색 실패: " + e.getMessage());
+                }
+            }
+
+            // 이메일로 찾지 못한 경우 provider + providerId로 검색
+            if (user == null && provider != null && providerId != null) {
+                try {
+                    user = userRepository.findByProviderAndProviderId(provider, providerId).orElse(null);
+                } catch (Exception e) {
+                    System.out.println("Provider/ProviderId로 사용자 검색 실패: " + e.getMessage());
+                }
+            }
+        }
+        // UserDetails 타입인 경우 (일반 로그인)
+        else if (principal instanceof UserDetails) {
+            String username = ((UserDetails) principal).getUsername();
+            try {
+                user = userRepository.findByEmail(username).orElse(null);
+            } catch (Exception e) {
+                System.out.println("Username으로 사용자 검색 실패: " + e.getMessage());
+            }
+        }
+        // String 타입인 경우 (기본 인증)
+        else if (principal instanceof String) {
+            try {
+                user = userRepository.findByEmail((String) principal).orElse(null);
+            } catch (Exception e) {
+                System.out.println("Username(String)으로 사용자 검색 실패: " + e.getMessage());
+            }
+        }
+
+        // 사용자를 찾지 못한 경우
+        if (user == null) {
+            System.out.println("인증된 사용자를 찾을 수 없습니다.");
+            return "redirect:/login?error=user_not_found";
+        }
+
         DiaryDTO diary = diaryService.getDiary(diaryId);
 
         // 권한 체크
@@ -155,9 +221,75 @@ public class DiaryController {
 
     // 일기 상세 페이지
     @GetMapping("/diary/{id}")
-    public String diaryDetail(@PathVariable("id") Long diaryId,
-                              @AuthenticationPrincipal User user,
-                              Model model) {
+    public String diaryDetail(@PathVariable("id") Long diaryId, Model model) {
+        // SecurityContext에서 인증 정보 가져오기
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated() ||
+                "anonymousUser".equals(authentication.getPrincipal())) {
+            return "redirect:/login";
+        }
+
+        // 인증된 사용자 정보 가져오기
+        Object principal = authentication.getPrincipal();
+        User user = null;
+
+        // OAuth2User 타입인 경우
+        if (principal instanceof OAuth2User) {
+            OAuth2User oauth2User = (OAuth2User) principal;
+            String email = null;
+            String provider = null;
+            String providerId = null;
+
+            // Google
+            if (oauth2User.getAttributes().containsKey("email")) {
+                email = oauth2User.getAttribute("email");
+                provider = "google";
+                providerId = oauth2User.getAttribute("sub");
+            }
+
+            // 이메일이 존재하는 경우 먼저 이메일로 검색
+            if (email != null) {
+                try {
+                    user = userRepository.findByEmail(email).orElse(null);
+                } catch (Exception e) {
+                    System.out.println("이메일로 사용자 검색 실패: " + e.getMessage());
+                }
+            }
+
+            // 이메일로 찾지 못한 경우 provider + providerId로 검색
+            if (user == null && provider != null && providerId != null) {
+                try {
+                    user = userRepository.findByProviderAndProviderId(provider, providerId).orElse(null);
+                } catch (Exception e) {
+                    System.out.println("Provider/ProviderId로 사용자 검색 실패: " + e.getMessage());
+                }
+            }
+        }
+        // UserDetails 타입인 경우 (일반 로그인)
+        else if (principal instanceof UserDetails) {
+            String username = ((UserDetails) principal).getUsername();
+            try {
+                user = userRepository.findByEmail(username).orElse(null);
+            } catch (Exception e) {
+                System.out.println("Username으로 사용자 검색 실패: " + e.getMessage());
+            }
+        }
+        // String 타입인 경우 (기본 인증)
+        else if (principal instanceof String) {
+            try {
+                user = userRepository.findByEmail((String) principal).orElse(null);
+            } catch (Exception e) {
+                System.out.println("Username(String)으로 사용자 검색 실패: " + e.getMessage());
+            }
+        }
+
+        // 사용자를 찾지 못한 경우
+        if (user == null) {
+            System.out.println("인증된 사용자를 찾을 수 없습니다.");
+            return "redirect:/login?error=user_not_found";
+        }
+
         DiaryDTO diary = diaryService.getDiary(diaryId);
 
         // 권한 체크

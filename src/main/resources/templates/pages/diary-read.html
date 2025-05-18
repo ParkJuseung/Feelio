@@ -339,47 +339,46 @@
 <div class="phone-container">
   <div class="app-container">
     <div class="app-header">
-<!--      <a href="javascript:history.back()" class="back-button">-->
-<!--        <img src="/api/placeholder/24/24" alt="뒤로가기">-->
-<!--      </a>-->
+      <a href="javascript:history.back()" class="back-button">
+        <img src="/api/placeholder/24/24" alt="뒤로가기">
+      </a>
       <h1>일기 보기</h1>
     </div>
 
     <div class="app-content">
       <!-- 일기 헤더 - 제목, 날짜, 감정 태그 -->
       <div class="diary-header">
-        <h2 class="diary-title">오늘은 특별했던 하루</h2>
+        <h2 class="diary-title" th:text="${diary.title}">오늘은 특별했던 하루</h2>
 
         <!-- 날짜, 날씨, 위치 정보 -->
         <div class="diary-meta">
           <div class="diary-date">
             <img class="meta-icon" src="/api/placeholder/18/18" alt="날짜">
-            <span>2025년 4월 15일 화요일</span>
+            <span th:text="${#temporals.format(diary.diaryDate, 'yyyy년 MM월 dd일 E요일')}">2025년 4월 15일 화요일</span>
           </div>
-          <div class="diary-weather">
+          <div class="diary-weather" th:if="${diary.weather != null && !diary.weather.isEmpty()}">
             <img class="meta-icon" src="/api/placeholder/18/18" alt="날씨">
-            <span>맑음, 22°C</span>
-          </div>
-          <div class="diary-location">
-            <img class="meta-icon" src="/api/placeholder/18/18" alt="위치">
-            <span>서울 강남구</span>
+            <span th:text="${diary.weather}">맑음, 22°C</span>
           </div>
         </div>
       </div>
 
       <!-- 사진 갤러리 -->
-      <div class="photo-gallery">
-        <img class="gallery-image" src="/resources/static/images/cup-hot-latte-art-coffee-wooden-table-with-book-coffee-shop-cafe.jpg" alt="일기 사진">
-        <div class="gallery-controls">
-          <div class="gallery-dot active"></div>
-          <div class="gallery-dot"></div>
-          <div class="gallery-dot"></div>
+      <div class="photo-gallery" th:if="${diary.existingPhotos != null && !diary.existingPhotos.isEmpty()}">
+        <div th:each="photo, status : ${diary.existingPhotos}">
+          <img class="gallery-image" th:src="${photo.photoUrl}" alt="일기 사진" th:style="${!status.first} ? 'display: none;' : ''">
+        </div>
+        <div class="gallery-controls" th:if="${diary.existingPhotos.size() > 1}">
+          <div th:each="photo, status : ${diary.existingPhotos}"
+               class="gallery-dot"
+               th:classappend="${status.first} ? 'active' : ''">
+          </div>
         </div>
       </div>
 
       <!-- 일기 본문 내용 -->
       <div class="diary-content">
-        <p class="diary-text">오늘은 정말 특별한 하루였다. 오랫동안 준비했던 프로젝트 발표가 있었는데, 생각보다 훨씬 좋은 반응을 얻었다. 팀원들과 함께 열심히 준비한 보람이 있었다.
+        <p class="diary-text" th:text="${diary.content}">오늘은 정말 특별한 하루였다. 오랫동안 준비했던 프로젝트 발표가 있었는데, 생각보다 훨씬 좋은 반응을 얻었다. 팀원들과 함께 열심히 준비한 보람이 있었다.
 
           발표 후에는 팀원들과 함께 맛있는 저녁을 먹으며 그동안의 노력을 서로 치하했다. 앞으로도 이런 기회가 더 많았으면 좋겠다. 다음 프로젝트는 어떤 주제로 할지 벌써부터 기대된다.
 
@@ -387,20 +386,12 @@
       </div>
 
       <!-- 감정 분석 결과 -->
-      <div class="diary-emotions">
+      <div class="diary-emotions" th:if="${diary.emotionAnalysis != null && diary.emotionAnalysis.emotions != null && !diary.emotionAnalysis.emotions.isEmpty()}">
         <h3 class="emotions-title">감정 분석 결과</h3>
         <div class="emotions-tags">
-          <div class="emotion-tag">
-            <img class="emotion-emoji" src="/resources/static/images/emotions/KakaoTalk_20250319_110426749_05.png" alt="행복">
-            <span class="emotion-name">행복 45%</span>
-          </div>
-          <div class="emotion-tag">
-            <img class="emotion-emoji" src="/resources/static/images/emotions/KakaoTalk_20250319_110426749_07.png" alt="기대">
-            <span class="emotion-name">기대 30%</span>
-          </div>
-          <div class="emotion-tag">
-            <img class="emotion-emoji" src="/resources/static/images/emotions/KakaoTalk_20250319_110426749_09.png" alt="만족">
-            <span class="emotion-name">만족 25%</span>
+          <div class="emotion-tag" th:each="emotion : ${diary.emotionAnalysis.emotions}">
+            <img class="emotion-emoji" th:src="${emotion.emotionEmoji}" alt="감정" th:alt="${emotion.emotionName}">
+            <span class="emotion-name" th:text="${emotion.emotionName + ' ' + emotion.percentage + '%'}">행복 45%</span>
           </div>
         </div>
       </div>
@@ -408,47 +399,39 @@
       <!-- 일기 하단 정보 -->
       <div class="diary-bottom">
         <!-- 음악 추천 -->
-        <h3 class="section-title">오늘의 음악</h3>
-        <div class="music-recommendation">
-          <img class="music-cover" src="/resources/static/images/rose-on the ground.jpg" alt="음악 커버">
+        <h3 class="section-title" th:if="${diary.recommendedMusic != null}">오늘의 음악</h3>
+        <div class="music-recommendation" th:if="${diary.recommendedMusic != null}">
+          <img class="music-cover" src="/resources/static/images/music-cover.jpg" alt="음악 커버">
           <div class="music-info">
-            <h4 class="music-title">On the Ground</h4>
-            <p class="music-artist">ROSÉ</p>
+            <h4 class="music-title" th:text="${diary.recommendedMusic.title}">On the Ground</h4>
+            <p class="music-artist" th:text="${diary.recommendedMusic.artist}">ROSÉ</p>
           </div>
-          <button class="play-button">
+          <a class="play-button" th:if="${diary.recommendedMusic.spotifyLink != null}" th:href="${diary.recommendedMusic.spotifyLink}" target="_blank">
+            <img class="play-icon" src="/api/placeholder/16/16" alt="재생">
+          </a>
+          <button class="play-button" th:unless="${diary.recommendedMusic.spotifyLink != null}">
             <img class="play-icon" src="/api/placeholder/16/16" alt="재생">
           </button>
         </div>
 
         <!-- 활동 정보 -->
-        <h3 class="section-title">오늘의 활동</h3>
-        <div class="activity-list">
-          <div class="activity-item">
-            <img class="activity-icon" src="/api/placeholder/24/24" alt="회의">
-            <span class="activity-name">프로젝트 발표</span>
-<!--            <span class="activity-duration">2시간</span>-->
-          </div>
-          <div class="activity-item">
-            <img class="activity-icon" src="/api/placeholder/24/24" alt="식사">
-            <span class="activity-name">팀 회식</span>
-<!--            <span class="activity-duration">1시간 30분</span>-->
-          </div>
-          <div class="activity-item">
-            <img class="activity-icon" src="/api/placeholder/24/24" alt="독서">
-            <span class="activity-name">독서</span>
-<!--            <span class="activity-duration">45분</span>-->
+        <h3 class="section-title" th:if="${diary.emotionAnalysis != null && diary.emotionAnalysis.activityRecommendations != null && !diary.emotionAnalysis.activityRecommendations.isEmpty()}">오늘의 활동</h3>
+        <div class="activity-list" th:if="${diary.emotionAnalysis != null && diary.emotionAnalysis.activityRecommendations != null && !diary.emotionAnalysis.activityRecommendations.isEmpty()}">
+          <div class="activity-item" th:each="activity : ${diary.emotionAnalysis.activityRecommendations}">
+            <img class="activity-icon" src="/api/placeholder/24/24" alt="활동">
+            <span class="activity-name" th:text="${activity.activity}">프로젝트 발표</span>
           </div>
         </div>
 
         <!-- 액션 버튼 -->
         <div class="actions-button-container">
-          <button class="action-button">
+          <a class="action-button" th:href="@{/diary/edit/{id}(id=${diary.id})}">
             <img class="action-icon" src="/api/placeholder/20/20" alt="편집">
             <span>수정하기</span>
-          </button>
-          <button class="action-button">
-            <img class="action-icon" src="/api/placeholder/20/20" alt="공유">
-            <span>공유하기</span>
+          </a>
+          <button class="action-button" id="toggleBookmark" th:data-diary-id="${diary.id}" th:data-is-bookmarked="${diary.bookmarked}">
+            <img class="action-icon" src="/api/placeholder/20/20" alt="북마크">
+            <span th:text="${diary.bookmarked ? '북마크 해제' : '북마크하기'}">북마크하기</span>
           </button>
         </div>
       </div>
@@ -467,5 +450,66 @@
 <!-- 그림자 효과 -->
 <div class="phone-shadow"></div>
 
+<!-- 북마크 기능 자바스크립트 -->
+<script th:inline="javascript">
+  document.addEventListener('DOMContentLoaded', function() {
+    const toggleBookmarkBtn = document.getElementById('toggleBookmark');
+    if (toggleBookmarkBtn) {
+      toggleBookmarkBtn.addEventListener('click', function() {
+        const diaryId = this.getAttribute('data-diary-id');
+
+        fetch(`/api/diary/${diaryId}/bookmark`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        })
+                .then(response => {
+                  if (response.ok) {
+                    // 북마크 상태 토글
+                    const isCurrentlyBookmarked = this.getAttribute('data-is-bookmarked') === 'true';
+                    this.setAttribute('data-is-bookmarked', !isCurrentlyBookmarked);
+                    this.querySelector('span').textContent = !isCurrentlyBookmarked ? '북마크 해제' : '북마크하기';
+                  }
+                })
+                .catch(error => {
+                  console.error('북마크 토글 오류:', error);
+                });
+      });
+    }
+  });
+</script>
+
+<!-- 사진 갤러리 기능 자바스크립트 -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // 사진 갤러리 관련 요소들 가져오기
+    const galleryImages = document.querySelectorAll('.gallery-image');
+    const galleryDots = document.querySelectorAll('.gallery-dot');
+
+    if (galleryImages.length > 1 && galleryDots.length > 1) {
+      // 각 도트에 클릭 이벤트 추가
+      galleryDots.forEach((dot, index) => {
+        dot.addEventListener('click', () => {
+          // 모든 이미지 숨기기
+          galleryImages.forEach(img => {
+            img.style.display = 'none';
+          });
+
+          // 선택한 이미지만 표시
+          galleryImages[index].style.display = 'block';
+
+          // 모든 도트에서 active 클래스 제거
+          galleryDots.forEach(d => {
+            d.classList.remove('active');
+          });
+
+          // 선택한 도트에 active 클래스 추가
+          dot.classList.add('active');
+        });
+      });
+    }
+  });
+</script>
 </body>
 </html>
