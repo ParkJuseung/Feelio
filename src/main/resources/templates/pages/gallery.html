@@ -172,34 +172,26 @@
 
         <!-- 2) 스크롤 영역: 갤러리 전체 -->
         <div class="gallery-list-container">
-            <!-- 필터 -->
-            <div class="gallery-controls">
-                <button class="active" onclick="filterEmotion('all')">전체</button>
-                <button onclick="filterEmotion('기쁨')">기쁨</button>
-                <button onclick="filterEmotion('슬픔')">슬픔</button>
-                <button onclick="filterEmotion('화남')">화남</button>
-            </div>
-
-            <!-- 업로드 -->
-            <div class="upload-button">
-                <label class="upload-label" for="upload-input">사진 업로드</label>
-                <input type="file" id="upload-input" accept="image/*">
-            </div>
 
             <!-- 갤러리 -->
-            <div class="gallery-section">
-                <div class="gallery-month">2023년 10월</div>
+            <div th:each="entry : ${photoMap}" class="gallery-section">
+                <div class="gallery-month" th:text="${entry.key} + '월'"></div>
                 <div class="gallery-grid">
-                    <div class="gallery-item emotion-기쁨">
-                        <img src="${pageContext.request.contextPath}/asset/images/2026.jpg" alt="img" onclick="openModal(this)">
+                    <div class="gallery-item" th:each="photo : ${entry.value}">
+                        <img th:src="@{${photo.photoUrl}}"
+                             th:onclick="'openModal(this, ' + ${photo.diaryId} + ')'"
+                             alt="img">
                     </div>
-                    <!-- 이하 생략: emotion-슬픔, emotion-화남 등 -->
                 </div>
             </div>
 
+
             <!-- 모달 -->
             <div class="modal" id="imgModal" onclick="closeModal()">
-                <img id="modalImg" src="">
+                <div class="modal-content" onclick="event.stopPropagation()">
+                    <img id="modalImg" src="">
+                    <button id="goToDiaryBtn">일기 보러가기</button>
+                </div>
             </div>
         </div>
         <!-- // gallery-list-container 끝 -->
@@ -235,11 +227,16 @@
 <div class="phone-shadow"></div>
 
 <script>
-    function openModal(img) {
+    function openModal(img, diaryId) {
         const modal = document.getElementById('imgModal');
         const modalImg = document.getElementById('modalImg');
         modalImg.src = img.src;
         modal.classList.add('active');
+
+        const btn = document.getElementById('goToDiaryBtn');
+        btn.onclick = () => {
+            location.href = `/diary/${diaryId}`; // 예시: /diary/1003
+        };
     }
     function closeModal() {
         document.getElementById('imgModal').classList.remove('active');

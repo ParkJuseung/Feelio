@@ -8,9 +8,15 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-@Builder
 public class DiaryGalleryDTO {
-    private String yearMonth;     // 예: "2024-01"
-    private String photoUrl;      // 예: "/asset/images/2026.jpg"
-    private String emotionName;   // 예: "기쁨"
+    private Long diaryId;
+    private String yearMonth;
+    private String photoUrl;
+
+    public DiaryGalleryDTO(String yearMonth, String photoUrl, Long diaryId) {
+        this.yearMonth = yearMonth;
+        this.photoUrl = photoUrl;
+        this.diaryId = diaryId;
+    }
+
 }
