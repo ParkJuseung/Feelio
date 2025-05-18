@@ -6,7 +6,7 @@
         content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
 
-  <!-- 기본 스타일 -->
+  <!-- 스타일들 -->
   <link rel="stylesheet" th:href="@{/css/base.css}">
   <link rel="stylesheet" th:href="@{/css/phone-style.css}">
   <link rel="stylesheet" th:href="@{/css/phone-frame.css}">
@@ -14,21 +14,18 @@
   <link rel="stylesheet" th:href="@{/css/app-content.css}">
 
   <style>
-    /* 앱 컨테이너 구조 유지 */
     .app-container {
       position: relative;
       height: 100%;
       display: flex;
       flex-direction: column;
     }
-    /* 프로필 화면 스크롤 영역 */
     .profile-scroll-container {
       flex: 1;
       overflow-y: auto;
-      padding: 16px 16px 70px; /* 아래 메뉴바 공간 확보 */
+      padding: 16px 16px 70px;
       margin-bottom: 60px;
     }
-    /* 프로필 카드 스타일 */
     .myinfo-edit-container {
       display: flex;
       flex-direction: column;
@@ -70,6 +67,10 @@
       font-size: 16px;
       color: #212121;
     }
+    .input-group input:disabled {
+      background: #eeeeee;
+      color: #999999;
+    }
     .button-section {
       width: 100%;
       max-width: 342px;
@@ -90,40 +91,6 @@
     .save-btn:hover {
       background-color: #0056b3;
     }
-    .menu-bar {
-      position: absolute;
-      bottom: 70px;
-      left: 0;
-      right: 0;
-      height: 65px;
-      background-color: white;
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.06);
-      border-top: 1px solid #f0f0f0;
-    }
-
-    .menu-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      color: #aaa;
-      font-size: 11px;
-      font-weight: 500;
-      transition: all 0.3s ease;
-      padding: 8px 0;
-    }
-
-    .menu-item.active {
-      color: #007BFF;
-    }
-
-    .menu-icon {
-      font-size: 22px;
-      margin-bottom: 4px;
-    }
-
   </style>
 
   <title>Feelio</title>
@@ -131,38 +98,24 @@
 <body>
 <div class="phone-container">
   <div class="app-container">
-    <!-- 헤더 -->
     <div class="app-header header-layout-center">
       <div class="app-title">감다 일기</div>
-      <div class="app-date">내 정보 수정</div>
+      <div class="app-date">내 정보 (소셜 로그인)</div>
     </div>
 
-    <!-- 스크롤 가능한 프로필 폼 -->
     <div class="profile-scroll-container">
       <div class="myinfo-edit-container">
         <div class="avatar-section">
           <div class="avatar">👤</div>
         </div>
-        <form action="/profile" method="post">
+        <form action="/profile/profile-oauth" method="post">
           <div class="input-group">
             <label for="nickname">닉네임</label>
             <input type="text" id="nickname" name="nickname" th:value="${user.nickname}">
           </div>
           <div class="input-group">
-            <label for="email">이메일</label>
-            <input type="email" id="email" name="email" th:value="${user.email}" disabled>
-          </div>
-          <div class="input-group">
-            <label for="currentPassword">기존 비밀번호</label>
-            <input type="password" id="currentPassword" name="currentPassword" placeholder="현재 비밀번호 입력">
-          </div>
-          <div class="input-group">
-            <label for="newPassword">새 비밀번호</label>
-            <input type="password" id="newPassword" name="newPassword" placeholder="새 비밀번호 입력">
-          </div>
-          <div class="input-group">
-            <label for="confirmPassword">새 비밀번호 확인</label>
-            <input type="password" id="confirmPassword" name="confirmPassword" placeholder="다시 입력">
+            <label for="email">이메일 (소셜 계정)</label>
+            <input type="email" id="email" th:value="${user.email}" disabled>
           </div>
           <div class="button-section">
             <button type="submit" class="save-btn">저장하기</button>
@@ -170,30 +123,10 @@
         </form>
       </div>
     </div>
-
-    <!-- 메뉴 바 -->
-    <div class="menu-bar">
-      <div class="menu-item active">
-        <div class="menu-icon">📖</div>
-        <div>일기</div>
-      </div>
-      <div class="menu-item">
-        <div class="menu-icon">💬</div>
-        <div>채팅</div>
-      </div>
-      <div class="menu-item">
-        <div class="menu-icon">📊</div>
-        <div>통계</div>
-      </div>
-      <div class="menu-item" onclick="location.href='/mypage'">
-        <div class="menu-icon">⚙️</div>
-        <div>설정2</div>
-      </div>
-    </div>
   </div>
 </div>
 
-<!-- 프레임 & 그림자 (phone-frame.css) -->
+<!-- 프레임 & 그림자 -->
 <div class="frame-container">
   <div class="phone-frame"></div>
 </div>
