@@ -108,16 +108,21 @@ public class DiaryService {
             for (MultipartFile photo : diaryDTO.getPhotos()) {
                 if (photo != null && !photo.isEmpty()) {
                     try {
+                        log.info("사진 업로드 처리: 이름={}, 크기={}bytes",
+                                photo.getOriginalFilename(), photo.getSize());
+
                         String fileName = fileStorageService.storeFile(photo);
                         log.info("파일 저장 성공: {}", fileName);
 
+                        // DB에 저장시 경로 앞에 /images/diary/ 붙이지 않고 파일명만 저장
                         DiaryPhoto diaryPhoto = DiaryPhoto.builder()
                                 .diary(diary)
-                                .photoUrl("/images/diary/" + fileName)
+                                .photoUrl(fileName)  // 변경됨: 파일명만 저장
                                 .build();
 
                         diaryPhotoRepository.save(diaryPhoto);
-                        log.info("사진 정보 DB 저장 성공: photoId={}, diaryId={}", diaryPhoto.getId(), diary.getId());
+                        log.info("사진 정보 DB 저장 성공: photoId={}, diaryId={}, url={}",
+                                diaryPhoto.getId(), diary.getId(), diaryPhoto.getPhotoUrl());
                     } catch (Exception e) {
                         log.error("사진 저장 중 오류 발생: {}", e.getMessage(), e);
                     }
@@ -248,9 +253,15 @@ public class DiaryService {
     }
 
     private PhotoDTO convertToPhotoDTO(DiaryPhoto photo) {
+        String url = photo.getPhotoUrl();
+        // 절대 경로가 아닌 경우, 경로 추가
+        if (!url.startsWith("/")) {
+            url = "/images/diary/" + url;
+        }
+
         return PhotoDTO.builder()
                 .id(photo.getId())
-                .photoUrl(photo.getPhotoUrl())
+                .photoUrl(url)
                 .build();
     }
 
