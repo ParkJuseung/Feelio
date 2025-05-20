@@ -3,6 +3,7 @@ package com.test.feelio.config;
 import com.test.feelio.entity.User;
 import com.test.feelio.oauth.CustomOAuth2UserService;
 import com.test.feelio.repository.UserRepository;
+import com.test.feelio.service.UserAuthenticationSuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,28 +22,37 @@ public class SecurityConfig {
 
     private final CustomOAuth2UserService customOAuth2UserService;
     private final UserRepository userRepository;
+    private final UserAuthenticationSuccessHandler userAuthenticationSuccessHandler;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+
+
+
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/login", "/signup", "/css/**", "/js/**", "/images/**").permitAll()
-                        //.anyRequest().authenticated()
-                        .anyRequest().permitAll()
-                )
+                        .requestMatchers("/").permitAll()
+                        .requestMatchers("/", "/login", "/login-process","/signup", "/css/**", "/js/**", "/images/**").permitAll()
+                        .anyRequest().authenticated()
+                        //.anyRequest().permitAll()
+                );
+
+        http
                 .formLogin(form -> form
                         .loginPage("/login") // 커스텀 로그인 페이지 URL
-                        .loginProcessingUrl("/login-process") // 로그인 처리 URL (폼 제출 대상)
-                        .defaultSuccessUrl("/")
+                        .loginProcessingUrl("/login-process") // 로그인 처리 URL
+                        .successHandler(userAuthenticationSuccessHandler)
+                        //.defaultSuccessUrl("/")
                         .failureUrl("/login?error")
 //                        .permitAll()
-                )
-                .oauth2Login(oauth2 -> oauth2
-                        .loginPage("/login")
-                        .defaultSuccessUrl("/")
-                        .userInfoEndpoint(userInfo -> userInfo
-                                .userService(customOAuth2UserService))
-                )
+                );
+//                .oauth2Login(oauth2 -> oauth2
+//                        .loginPage("/login")
+//                        .defaultSuccessUrl("/")
+//                        .userInfoEndpoint(userInfo -> userInfo
+//                                .userService(customOAuth2UserService))
+//                )
+        http
                 .logout(logout -> logout
                         .logoutSuccessUrl("/login?logout")
                         .permitAll()

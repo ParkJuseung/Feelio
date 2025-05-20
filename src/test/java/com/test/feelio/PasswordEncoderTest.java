@@ -21,6 +21,6 @@ public class PasswordEncoderTest {
             System.out.println("예외 발생!");
             e.printStackTrace();
         }
-        System.out.println("✅ 테스트 종료됨");
+        System.out.println("테스트 종료됨");
     }
 }
