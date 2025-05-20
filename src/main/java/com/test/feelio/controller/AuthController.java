@@ -53,10 +53,11 @@ public class AuthController {
 
     @GetMapping("/login")
     public String showLoginForm(Model model) {
-        model.addAttribute("userLoginDto", new UserLoginDto());
+        //model.addAttribute("userLoginDto", new UserLoginDto());
         return "pages/login";
     }
 
+    /*
     @PostMapping("/login")
     public String processLogin(@ModelAttribute @Valid UserLoginDto userLoginDto,
                                BindingResult bindingResult,
@@ -82,6 +83,9 @@ public class AuthController {
             return "redirect:/login";
         }
     }
+    */
+
+
 
     // 로그아웃 처리
     @GetMapping("/logout")

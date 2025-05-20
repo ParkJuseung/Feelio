@@ -53,6 +53,7 @@ public class UserService {
      * @param session 세션 객체
      * @return 로그인 성공 여부
      */
+    /*
     public boolean loginUser(UserLoginDto loginDto, HttpSession session) {
         logger.info("로그인 시도: {}", loginDto.getEmail());
 
@@ -74,5 +75,7 @@ public class UserService {
         }
             return false;
     }
+
+     */
 
 }

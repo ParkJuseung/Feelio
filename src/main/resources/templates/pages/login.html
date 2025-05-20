@@ -224,22 +224,24 @@
                 <div class="logo">Feelio</div>
                 <div class="sub-title">당신의 감정을 기록하세요</div>
             </div>
-            <form th:action="@{/login}" method="post" th:object="${userLoginDto}">
+            <form th:action="@{/login-process}" method="post">
+                <!-- 스프링 시큐리티는 기본적으로 username과 password 필드명을 사용-->
                 <div class="input-field">
-                    <label for="email">이메일</label>
-                    <input type="email" id="email" th:field="*{email}" placeholder="이메일을 입력하세요" required>
-                    <span th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="error-message"></span>
+                    <label for="username">이메일</label>
+                    <input type="email" id="username" name="username" placeholder="이메일을 입력하세요" required>
                 </div>
 
                 <div class="input-field">
                     <label for="password">비밀번호</label>
-                    <input type="password" id="password" th:field="*{password}" placeholder="비밀번호를 입력하세요" required>
-                    <span th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="error-message"></span>
+                    <input type="password" id="password" name="password" placeholder="비밀번호를 입력하세요" required>
                 </div>
 
-                <div th:if="${loginError}" class="error-message" th:text="${loginError}"></div>
+                <!-- 스프링 시큐리티 오류 메시지 표시 -->
+                <div th:if="${param.error}" class="error-message">이메일 또는 비밀번호가 일치하지 않습니다.</div>
+                <div th:if="${param.logout}" class="info-message">로그아웃 되었습니다.</div>
 
                 <button type="submit" class="login-button">로그인</button>
+
             </form>
 
 
@@ -270,21 +272,5 @@
 <!-- 그림자 효과 -->
 <div class="phone-shadow"></div>
 
-<script>
-
-    // 로그인 버튼 이벤트
-    document.querySelector('.login-button').addEventListener('click', function() {
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-
-        if (email && password) {
-            // TODO: 로그인 처리 로직 구현
-            // 성공 시 메인 페이지로 이동
-            window.location.href = '/pages/home.html';
-        } else {
-            alert('이메일과 비밀번호를 입력해주세요.');
-        }
-    });
-</script>
 </body>
 </html>
