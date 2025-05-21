@@ -18,6 +18,8 @@
     --border-radius-lg: 28px;
 }
 
+
+
 /* 기본 설정 - 글씨체 개선 */
 body {
     background-color: var(--bg-color);

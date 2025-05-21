@@ -28,7 +28,7 @@ public class DiaryService {
     private final FileStorageService fileStorageService;
     private final FeedbackTemplateRepository feedbackTemplateRepository;
 
-    // 일기 목록 조회
+    // 일기 목록 조회 - 수정된 버전
     public List<DiaryDTO> getDiaryList(Long userId, boolean bookmarkOnly) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다"));
@@ -41,7 +41,7 @@ public class DiaryService {
         }
 
         return diaries.stream()
-                .map(this::convertToDiaryDTO)
+                .map(this::convertToDiaryDTOWithDetails)  // 상세 정보 포함 변환
                 .collect(Collectors.toList());
     }
 
@@ -323,5 +323,55 @@ public class DiaryService {
     private String extractFileName(String photoUrl) {
         // "/images/diary/filename.jpg" -> "filename.jpg"
         return photoUrl.substring(photoUrl.lastIndexOf('/') + 1);
+    }
+
+    // 새로운 메서드: 사진과 감정 정보가 포함된 DiaryDTO 변환
+    private DiaryDTO convertToDiaryDTOWithDetails(Diary diary) {
+        DiaryDTO dto = DiaryDTO.builder()
+                .id(diary.getId())
+                .userId(diary.getUser().getId())
+                .title(diary.getTitle())
+                .content(diary.getContent())
+                .diaryDate(diary.getDiaryDate())
+                .weather(diary.getWeather())
+                .isBookmarked(diary.isBookmarked())
+                .createdAt(diary.getCreatedAt())
+                .updatedAt(diary.getUpdatedAt())
+                .build();
+
+        // 사진 정보 추가
+        List<DiaryPhoto> photos = diaryPhotoRepository.findByDiaryId(diary.getId());
+        List<PhotoDTO> photoDTOs = photos.stream()
+                .map(this::convertToPhotoDTO)
+                .collect(Collectors.toList());
+        dto.setExistingPhotos(photoDTOs);
+
+        // 감정 분석 정보 추가
+        List<DiaryEmotion> emotions = diaryEmotionRepository.findByDiaryId(diary.getId());
+        if (!emotions.isEmpty()) {
+            EmotionAnalysisDTO analysisDTO = createEmotionAnalysisDTO(emotions);
+            dto.setEmotionAnalysis(analysisDTO);
+
+            // 대표 감정에 따른 음악 추천
+            DiaryEmotion primaryEmotion = diaryEmotionRepository
+                    .findByDiaryIdAndIsPrimaryEmotion(diary.getId(), true)
+                    .orElse(null);
+
+            if (primaryEmotion != null) {
+                List<RecommendedMusic> musics = recommendedMusicRepository
+                        .findRandomMusicByEmotion(primaryEmotion.getEmotion().getId(), 1);
+
+                if (!musics.isEmpty()) {
+                    dto.setRecommendedMusic(convertToMusicDTO(musics.get(0)));
+                }
+            }
+        }
+
+        log.debug("DiaryDTO 변환 완료: ID={}, 사진={}개, 감정분석={}",
+                dto.getId(),
+                dto.getExistingPhotos() != null ? dto.getExistingPhotos().size() : 0,
+                dto.getEmotionAnalysis() != null ? "있음" : "없음");
+
+        return dto;
     }
 }

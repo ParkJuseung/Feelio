@@ -4,6 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
   <!-- 기본 스타일 -->
   <link rel="stylesheet" th:href="@{/css/base.css}">
   <!-- 폰 스타일 -->
@@ -26,42 +29,70 @@
       color: #333;
     }
 
-    /*.phone-container {*/
-    /*  max-width: 375px;*/
-    /*  margin: 0 auto;*/
-    /*  background: white;*/
-    /*  border-radius: 30px;*/
-    /*  overflow: hidden;*/
-    /*  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);*/
-    /*  position: relative;*/
-    /*}*/
-
-    /*.app-container {*/
-    /*  height: 100%;*/
-    /*  display: flex;*/
-    /*  flex-direction: column;*/
-    /*}*/
-
-    /*.app-header {*/
-    /*  background-color: #f0f3ff;*/
-    /*  padding: 20px;*/
-    /*  position: relative;*/
-    /*  display: flex;*/
-    /*  align-items: center;*/
-    /*}*/
+    .app-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between; /* 이것이 핵심! */
+      padding: 16px 20px;
+      background-color: white;
+      border-bottom: 1px solid #f0f0f0;
+      position: relative;
+      width: 100%;
+      box-sizing: border-box;
+    }
 
     .back-button {
-      width: 24px;
-      height: 24px;
-      margin-right: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: #f8f9fa;
+      color: #333;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .back-button:hover {
+      background-color: #e9ecef;
+      transform: scale(1.05);
+    }
+
+    .back-button:active {
+      transform: scale(0.95);
+    }
+
+    .back-button i {
+      width: 20px;
+      height: 20px;
     }
 
     .app-header h1 {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
       margin: 0;
-      font-size: 20px;
+      font-size: 18px;
+      font-weight: 600;
       color: #333;
-      flex-grow: 1;
-      text-align: center;
+    }
+
+    .header-spacer {
+      width: 40px; /* back-button과 같은 너비로 균형 맞춤 */
+      flex-shrink: 0;
+    }
+
+    /* 반응형: 작은 화면에서 제목이 버튼과 겹치지 않도록 */
+    @media (max-width: 480px) {
+      .app-header h1 {
+        position: static;
+        transform: none;
+        flex: 1;
+        text-align: center;
+        margin: 0 16px;
+      }
     }
 
     .actions-button {
@@ -332,17 +363,56 @@
       height: 20px;
       margin-right: 6px;
     }
+
+    .meta-icon, .play-icon, .action-icon, .activity-icon {
+      display: inline-block;
+      vertical-align: middle;
+      margin-right: 8px;
+      color: currentColor;
+    }
+
+    .meta-icon {
+      width: 18px;
+      height: 18px;
+    }
+
+    .play-icon {
+      width: 16px;
+      height: 16px;
+    }
+
+    .action-icon {
+      width: 20px;
+      height: 20px;
+    }
+
+    .activity-icon {
+      width: 24px;
+      height: 24px;
+    }
+
+    .back-button i {
+      width: 24px;
+      height: 24px;
+    }
+
+    /* 북마크 활성화 상태 색상 */
+    .bookmark-active {
+      color: #FFD700;
+    }
   </style>
 </head>
 <body>
-<!--diary-read.html-->
+
 <div class="phone-container">
   <div class="app-container">
+    <!-- 기존 app-header 부분을 이것으로 교체 -->
     <div class="app-header">
       <a href="javascript:history.back()" class="back-button">
-        <img src="/api/placeholder/24/24" alt="뒤로가기">
+        <i data-lucide="arrow-left"></i>
       </a>
       <h1>일기 보기</h1>
+      <div class="header-spacer"></div> <!-- 오른쪽 공간 확보용 -->
     </div>
 
     <div class="app-content">
@@ -353,11 +423,11 @@
         <!-- 날짜, 날씨, 위치 정보 -->
         <div class="diary-meta">
           <div class="diary-date">
-            <img class="meta-icon" src="/api/placeholder/18/18" alt="날짜">
+            <i data-lucide="calendar" class="meta-icon"></i>
             <span th:text="${#temporals.format(diary.diaryDate, 'yyyy년 MM월 dd일 E요일')}">2025년 4월 15일 화요일</span>
           </div>
           <div class="diary-weather" th:if="${diary.weather != null && !diary.weather.isEmpty()}">
-            <img class="meta-icon" src="/api/placeholder/18/18" alt="날씨">
+            <i data-lucide="cloud-sun" class="meta-icon"></i>
             <span th:text="${diary.weather}">맑음, 22°C</span>
           </div>
         </div>
@@ -390,7 +460,11 @@
         <h3 class="emotions-title">감정 분석 결과</h3>
         <div class="emotions-tags">
           <div class="emotion-tag" th:each="emotion : ${diary.emotionAnalysis.emotions}">
-            <img class="emotion-emoji" th:src="${emotion.emotionEmoji}" alt="감정" th:alt="${emotion.emotionName}">
+            <!-- 감정 이미지가 있으면 이미지 사용, 없으면 기본 아이콘 -->
+            <img th:if="${emotion.emotionEmoji != null and !#strings.isEmpty(emotion.emotionEmoji)}"
+                 class="emotion-emoji" th:src="${emotion.emotionEmoji}" th:alt="${emotion.emotionName}">
+            <i th:unless="${emotion.emotionEmoji != null and !#strings.isEmpty(emotion.emotionEmoji)}"
+               data-lucide="smile" class="emotion-emoji"></i>
             <span class="emotion-name" th:text="${emotion.emotionName + ' ' + emotion.percentage + '%'}">행복 45%</span>
           </div>
         </div>
@@ -401,16 +475,16 @@
         <!-- 음악 추천 -->
         <h3 class="section-title" th:if="${diary.recommendedMusic != null}">오늘의 음악</h3>
         <div class="music-recommendation" th:if="${diary.recommendedMusic != null}">
-          <img class="music-cover" src="/resources/static/images/music-cover.jpg" alt="음악 커버">
+          <i data-lucide="music" class="music-cover" style="width: 48px; height: 48px; color: #007BFF;"></i>
           <div class="music-info">
             <h4 class="music-title" th:text="${diary.recommendedMusic.title}">On the Ground</h4>
             <p class="music-artist" th:text="${diary.recommendedMusic.artist}">ROSÉ</p>
           </div>
           <a class="play-button" th:if="${diary.recommendedMusic.spotifyLink != null}" th:href="${diary.recommendedMusic.spotifyLink}" target="_blank">
-            <img class="play-icon" src="/api/placeholder/16/16" alt="재생">
+            <i data-lucide="play" class="play-icon"></i>
           </a>
           <button class="play-button" th:unless="${diary.recommendedMusic.spotifyLink != null}">
-            <img class="play-icon" src="/api/placeholder/16/16" alt="재생">
+            <i data-lucide="play" class="play-icon"></i>
           </button>
         </div>
 
@@ -418,7 +492,7 @@
         <h3 class="section-title" th:if="${diary.emotionAnalysis != null && diary.emotionAnalysis.activityRecommendations != null && !diary.emotionAnalysis.activityRecommendations.isEmpty()}">오늘의 활동</h3>
         <div class="activity-list" th:if="${diary.emotionAnalysis != null && diary.emotionAnalysis.activityRecommendations != null && !diary.emotionAnalysis.activityRecommendations.isEmpty()}">
           <div class="activity-item" th:each="activity : ${diary.emotionAnalysis.activityRecommendations}">
-            <img class="activity-icon" src="/api/placeholder/24/24" alt="활동">
+            <i data-lucide="target" class="activity-icon"></i>
             <span class="activity-name" th:text="${activity.activity}">프로젝트 발표</span>
           </div>
         </div>
@@ -426,11 +500,14 @@
         <!-- 액션 버튼 -->
         <div class="actions-button-container">
           <a class="action-button" th:href="@{/diary/edit/{id}(id=${diary.id})}">
-            <img class="action-icon" src="/api/placeholder/20/20" alt="편집">
+            <i data-lucide="edit" class="action-icon"></i>
             <span>수정하기</span>
           </a>
-          <button class="action-button" id="toggleBookmark" th:data-diary-id="${diary.id}" th:data-is-bookmarked="${diary.bookmarked}">
-            <img class="action-icon" src="/api/placeholder/20/20" alt="북마크">
+          <button class="action-button" id="toggleBookmark"
+                  th:data-diary-id="${diary.id}"
+                  th:data-is-bookmarked="${diary.bookmarked}"
+                  th:classappend="${diary.bookmarked} ? 'bookmark-active' : ''">
+            <i th:data-lucide="${diary.bookmarked ? 'bookmark-check' : 'bookmark'}" class="action-icon"></i>
             <span th:text="${diary.bookmarked ? '북마크 해제' : '북마크하기'}">북마크하기</span>
           </button>
         </div>
@@ -439,77 +516,82 @@
   </div>
 </div>
 
-<!-- 푸터 프래그먼트 포함 -->
-<div th:replace="~{fragments/footer :: footer}"></div>
-
-<!-- 프레임 컨테이너 - 항상 최상위에 위치 -->
-<div class="frame-container">
-  <div class="phone-frame"></div>
-</div>
-
-<!-- 그림자 효과 -->
-<div class="phone-shadow"></div>
-
-<!-- 북마크 기능 자바스크립트 -->
-<script th:inline="javascript">
+<script>
+  // Lucide 아이콘 초기화
   document.addEventListener('DOMContentLoaded', function() {
-    const toggleBookmarkBtn = document.getElementById('toggleBookmark');
-    if (toggleBookmarkBtn) {
-      toggleBookmarkBtn.addEventListener('click', function() {
-        const diaryId = this.getAttribute('data-diary-id');
+    lucide.createIcons();
 
+    // 북마크 토글 기능
+    const bookmarkBtn = document.getElementById('toggleBookmark');
+    if (bookmarkBtn) {
+      bookmarkBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+
+        const diaryId = this.getAttribute('data-diary-id');
+        const isBookmarked = this.getAttribute('data-is-bookmarked') === 'true';
+
+        // API 호출
         fetch(`/api/diary/${diaryId}/bookmark`, {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
           }
         })
                 .then(response => {
                   if (response.ok) {
                     // 북마크 상태 토글
-                    const isCurrentlyBookmarked = this.getAttribute('data-is-bookmarked') === 'true';
-                    this.setAttribute('data-is-bookmarked', !isCurrentlyBookmarked);
-                    this.querySelector('span').textContent = !isCurrentlyBookmarked ? '북마크 해제' : '북마크하기';
+                    const newState = !isBookmarked;
+                    this.setAttribute('data-is-bookmarked', newState);
+
+                    // 아이콘 변경
+                    const icon = this.querySelector('i');
+                    const text = this.querySelector('span');
+
+                    if (newState) {
+                      icon.setAttribute('data-lucide', 'bookmark-check');
+                      text.textContent = '북마크 해제';
+                      this.classList.add('bookmark-active');
+                    } else {
+                      icon.setAttribute('data-lucide', 'bookmark');
+                      text.textContent = '북마크하기';
+                      this.classList.remove('bookmark-active');
+                    }
+
+                    // 아이콘 다시 렌더링
+                    lucide.createIcons();
+                  } else {
+                    console.error('북마크 토글 실패');
+                    alert('북마크 설정에 실패했습니다.');
                   }
                 })
                 .catch(error => {
                   console.error('북마크 토글 오류:', error);
+                  alert('오류가 발생했습니다.');
                 });
       });
     }
-  });
-</script>
 
-<!-- 사진 갤러리 기능 자바스크립트 -->
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    // 사진 갤러리 관련 요소들 가져오기
+    // 사진 갤러리 기능 (여러 사진이 있을 때)
     const galleryImages = document.querySelectorAll('.gallery-image');
     const galleryDots = document.querySelectorAll('.gallery-dot');
 
-    if (galleryImages.length > 1 && galleryDots.length > 1) {
-      // 각 도트에 클릭 이벤트 추가
+    if (galleryImages.length > 1) {
       galleryDots.forEach((dot, index) => {
-        dot.addEventListener('click', () => {
+        dot.addEventListener('click', function() {
           // 모든 이미지 숨기기
-          galleryImages.forEach(img => {
-            img.style.display = 'none';
-          });
+          galleryImages.forEach(img => img.style.display = 'none');
+          // 모든 점 비활성화
+          galleryDots.forEach(d => d.classList.remove('active'));
 
-          // 선택한 이미지만 표시
+          // 선택된 이미지 보이기
           galleryImages[index].style.display = 'block';
-
-          // 모든 도트에서 active 클래스 제거
-          galleryDots.forEach(d => {
-            d.classList.remove('active');
-          });
-
-          // 선택한 도트에 active 클래스 추가
-          dot.classList.add('active');
+          // 선택된 점 활성화
+          this.classList.add('active');
         });
       });
     }
   });
 </script>
+
 </body>
 </html>
