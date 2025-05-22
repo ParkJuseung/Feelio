@@ -541,10 +541,7 @@
             return;
         }
 
-        // 디버깅 로그
-        console.log("저장 시작:", { title, content: content.substring(0, 20) + "...", date, weather });
-
-        // 저장 중 모달 표시 (Swal이 정의되어 있다면)
+        // 저장 중 모달 표시
         if (typeof Swal !== 'undefined') {
             Swal.fire({
                 title: 'AI 분석 중',
@@ -562,30 +559,41 @@
             alert('저장 중입니다. 잠시 기다려주세요.');
         }
 
-
-        console.log("저장 시작: 제목=" + title + ", 내용=" + content.substring(0, 30) + "..., 날짜=" + date);
-
+        // 폼 데이터 생성
         const formData = new FormData();
         formData.append('title', title);
         formData.append('content', content);
         formData.append('diaryDate', date);
         formData.append('weather', weather);
 
-        // 사진 파일 추가 (디버깅 추가)
+        // 중요한 변경: 사진 파일을 폼에서 직접 가져오기
+        const photoElements = document.querySelectorAll('.photo-preview');
         const photoInput = document.getElementById('photo-file-input');
+
+        // 새로 추가된 사진 처리 (file input에서)
         if (photoInput.files.length > 0) {
             console.log("사진 파일 첨부: " + photoInput.files.length + "개");
             for (let i = 0; i < photoInput.files.length; i++) {
-                console.log("파일 " + (i+1) + ": " + photoInput.files[i].name + " (" + photoInput.files[i].size + " bytes)");
+                console.log("파일 " + (i+1) + ": " + photoInput.files[i].name);
                 formData.append('photos', photoInput.files[i]);
             }
         } else {
-            console.log("첨부된 사진 없음");
+            console.log("새로 첨부된 사진 없음");
         }
 
-        // 폼데이터 확인 (디버깅)
-        for (let pair of formData.entries()) {
-            console.log(pair[0] + ': ' + (pair[0] === 'photos' ? pair[1].name : pair[1]));
+        // 미리보기로 표시된 사진 중 파일 형태로 있는 것들 처리
+        // (base64 이미지는 제외하고 실제 파일만 추가)
+        if (photoElements.length > 0) {
+            console.log("미리보기 사진: " + photoElements.length + "개");
+            for (let i = 0; i < photoElements.length; i++) {
+                const src = photoElements[i].src;
+                if (src.startsWith('data:image')) {
+                    // base64 이미지를 File 객체로 변환하여 추가
+                    console.log("Base64 이미지를 File로 변환하여 추가");
+                    const file = dataURLtoFile(src, "image_" + i + ".jpg");
+                    formData.append('photos', file);
+                }
+            }
         }
 
         // CSRF 토큰 추가
@@ -604,7 +612,7 @@
 
             console.log("API 요청:", method, url);
 
-            // 헤더 설정
+            // 헤더 설정 (multipart/form-data는 자동으로 설정됨)
             const headers = {
                 'X-Requested-With': 'XMLHttpRequest'
             };
@@ -644,6 +652,19 @@
             alert('저장 중 오류가 발생했습니다: ' + error.message);
             if (typeof Swal !== 'undefined') Swal.close();
         }
+    }
+
+    function dataURLtoFile(dataurl, filename) {
+        let arr = dataurl.split(','),
+            mime = arr[0].match(/:(.*?);/)[1],
+            bstr = atob(arr[1]),
+            n = bstr.length,
+            u8arr = new Uint8Array(n);
+
+        while(n--){
+            u8arr[n] = bstr.charCodeAt(n);
+        }
+        return new File([u8arr], filename, {type:mime});
     }
 </script>
 </body>

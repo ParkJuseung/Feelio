@@ -24,9 +24,7 @@ import java.util.UUID;
 public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
 
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder; // 필드 추가
-
-
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -46,7 +44,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         User user = saveOrUpdate(attributes, registrationId);
 
         return new DefaultOAuth2User(
-                Collections.singleton(new SimpleGrantedAuthority(user.getRole().name())),
+                Collections.singleton(new SimpleGrantedAuthority("ROLE_" + user.getRole().name())),
                 attributes.getAttributes(),
                 attributes.getNameAttributeKey()
         );
@@ -54,24 +52,41 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
     private User saveOrUpdate(OAuthAttributes attributes, String registrationId) {
         User user = userRepository.findByEmail(attributes.getEmail())
-                .map(entity -> entity.update(attributes.getNickname(), attributes.getEmail()))
-                .orElse(attributes.toEntity(registrationId));
+                .map(existingUser -> {
+                    // 기존 사용자인 경우 nickname만 업데이트
+                    existingUser.setNickname(attributes.getNickname());
+                    // OAuth 사용자는 항상 활성화 상태로 유지하고 약관 동의 처리
+                    existingUser.setEnabled(true);
+                    existingUser.setTermsAgree(true);
+                    existingUser.setPrivacyAgree(true);
+                    // provider 정보도 업데이트 (소셜 로그인으로 전환된 경우)
+                    if (existingUser.getProvider() == null) {
+                        existingUser.setProvider(registrationId);
+                        existingUser.setProviderId((String) attributes.getAttributes().get(attributes.getNameAttributeKey()));
+                    }
+                    return existingUser;
+                })
+                .orElseGet(() -> {
+                    // 새 사용자 생성
+                    User newUser = attributes.toEntity(registrationId);
 
-        // 소셜 로그인 사용자를 위한 임의 비밀번호 설정
-        if (user.getPassword() == null) {
-            String randomPassword = UUID.randomUUID().toString();
-            // 비밀번호 인코더를 사용하여 암호화
-            user.setPassword(passwordEncoder.encode(randomPassword));
-        }
+                    // 소셜 로그인 사용자를 위한 임의 비밀번호 설정
+                    String randomPassword = UUID.randomUUID().toString();
+                    newUser.setPassword(passwordEncoder.encode(randomPassword));
 
+                    return newUser;
+                });
+
+        System.out.println("===== OAuth 사용자 저장 =====");
+        System.out.println("이메일: " + user.getEmail());
+        System.out.println("닉네임: " + user.getNickname());
+        System.out.println("제공자: " + user.getProvider());
         System.out.println("termsAgree: " + user.isTermsAgree());
         System.out.println("privacyAgree: " + user.isPrivacyAgree());
         System.out.println("marketingAgree: " + user.isMarketingAgree());
         System.out.println("enabled: " + user.isEnabled());
-
+        System.out.println("========================");
 
         return userRepository.save(user);
     }
-
-
 }
