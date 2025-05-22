@@ -11,14 +11,14 @@ import java.util.Map;
 public class OAuthAttributes {
     private Map<String, Object> attributes;
     private String nameAttributeKey;
-    private String nickname;  // name에서 nickname으로 변경
+    private String nickname;
     private String email;
 
     @Builder
     public OAuthAttributes(Map<String, Object> attributes, String nameAttributeKey, String nickname, String email) {
         this.attributes = attributes;
         this.nameAttributeKey = nameAttributeKey;
-        this.nickname = nickname;  // name에서 nickname으로 변경
+        this.nickname = nickname;
         this.email = email;
     }
 
@@ -35,7 +35,7 @@ public class OAuthAttributes {
 
     private static OAuthAttributes ofGoogle(String userNameAttributeName, Map<String, Object> attributes) {
         return OAuthAttributes.builder()
-                .nickname((String) attributes.get("name"))  // name에서 nickname으로 변경
+                .nickname((String) attributes.get("name"))
                 .email((String) attributes.get("email"))
                 .attributes(attributes)
                 .nameAttributeKey(userNameAttributeName)
@@ -44,11 +44,16 @@ public class OAuthAttributes {
 
     public User toEntity(String provider) {
         return User.builder()
-                .nickname(nickname)  // name에서 nickname으로 변경
+                .nickname(nickname)
                 .email(email)
                 .role(Role.User)
                 .provider(provider)
                 .providerId((String) attributes.get(nameAttributeKey))
+                // OAuth 사용자는 자동으로 활성화되고 약관에 동의한 것으로 처리
+                .enabled(true)
+                .termsAgree(true)
+                .privacyAgree(true)
+                .marketingAgree(false)  // 마케팅 동의는 기본 false
                 .build();
     }
 }

@@ -195,6 +195,24 @@
             color: #4285F4;
             border: 1px solid #e0e0e0;
         }
+
+        .error-message {
+            color: #dc3545;
+            font-size: 14px;
+            margin-top: 5px;
+            display: block;
+        }
+
+        .success-message {
+            color: #28a745;
+            font-size: 14px;
+            margin-bottom: 15px;
+            text-align: center;
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 8px;
+            padding: 10px;
+        }
     </style>
 </head>
 <body>
@@ -224,8 +242,27 @@
                 <div class="logo">Feelio</div>
                 <div class="sub-title">당신의 감정을 기록하세요</div>
             </div>
-            <form action="/loginok" method="post">
-                <!-- 스프링 시큐리티는 기본적으로 username과 password 필드명을 사용-->
+
+            <!-- 성공 메시지 표시 -->
+            <div th:if="${param.registered}" class="success-message">
+                회원가입이 완료되었습니다. 로그인해주세요.
+            </div>
+
+            <!-- 오류 메시지 표시 -->
+            <div th:if="${param.error}" class="error-message" style="text-align: center; margin-bottom: 15px;">
+                이메일 또는 비밀번호가 일치하지 않습니다.
+            </div>
+
+            <!-- 로그아웃 메시지 -->
+            <div th:if="${param.logout}" class="success-message">
+                로그아웃되었습니다.
+            </div>
+
+            <!-- Spring Security가 처리하는 로그인 폼 -->
+            <form th:action="@{/login}" method="post">
+                <!-- CSRF 토큰 -->
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
                 <div class="input-field">
                     <label for="username">이메일</label>
                     <input type="email" id="username" name="username" placeholder="이메일을 입력하세요" required>
@@ -236,17 +273,11 @@
                     <input type="password" id="password" name="password" placeholder="비밀번호를 입력하세요" required>
                 </div>
 
-                <!-- 스프링 시큐리티 오류 메시지 표시 -->
-                <div th:if="${param.error}" class="error-message">이메일 또는 비밀번호가 일치하지 않습니다.</div>
-                <div th:if="${param.logout}" class="info-message">로그아웃 되었습니다.</div>
-
                 <button type="submit" class="login-button">로그인</button>
-                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
             </form>
 
-
             <div class="footer-links">
-                <a href="signup.html">회원가입</a>
+                <a th:href="@{/signup}">회원가입</a>
                 <span>|</span>
                 <a href="#">비밀번호 찾기</a>
             </div>
@@ -258,7 +289,7 @@
             <div class="social-login">
                 <button class="social-button kakao">K</button>
                 <button class="social-button naver">N</button>
-                <a th:href="@{/oauth2/authorization/google}" class="social-button google">G</a>
+                <button onclick="location.href='/oauth2/authorization/google'" class="social-button google">G</button>
             </div>
         </div>
     </div>
@@ -271,6 +302,8 @@
 
 <!-- 그림자 효과 -->
 <div class="phone-shadow"></div>
+
+<!-- JavaScript 제거 - Spring Security가 폼 제출을 처리 -->
 
 </body>
 </html>
