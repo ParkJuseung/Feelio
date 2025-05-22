@@ -31,10 +31,10 @@ public class EmotionAnalysisService {
     private final ActivityEffectRepository activityEffectRepository;
     private final DiaryActivityRepository diaryActivityRepository; // 추가
 
-    @Value("${openai.api.key}")
+    //@Value("${openai.api.key}")
     private String openaiApiKey;
 
-    @Value("${openai.model}")
+    //@Value("${openai.model}")
     private String model;
 
     public EmotionAnalysisDTO analyzeEmotion(String diaryContent, Long diaryId, Long userId) {
