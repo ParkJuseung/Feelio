@@ -124,6 +124,27 @@
       margin-bottom: 4px;
     }
 
+    .alert-error {
+      color: #ff4d4f;
+      background-color: #fff2f0;
+      padding: 12px 16px;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size : 13px;
+      text-align: center;
+    }
+
+    .alert-success {
+      color: #52c41a;
+      background-color: #f6ffed;
+      padding: 12px 16px;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size : 13px;
+      text-align: center;
+    }
   </style>
 
   <title>Feelio</title>
@@ -140,10 +161,14 @@
     <!-- 스크롤 가능한 프로필 폼 -->
     <div class="profile-scroll-container">
       <div class="myinfo-edit-container">
+
         <div class="avatar-section">
-          <div class="avatar">👤</div>
+          <div class="avatar" id="avatarClickable" style="cursor: pointer;">👤</div>
         </div>
-        <form action="/profile" method="post">
+        <!--  메시지 영역 -->
+        <div th:if="${error}" class="alert-error" th:text="${error}"></div>
+        <div th:if="${message}" class="alert-success" th:text="${message}"></div>
+        <form action="/mypage/profile" method="post">
           <div class="input-group">
             <label for="nickname">닉네임</label>
             <input type="text" id="nickname" name="nickname" th:value="${user.nickname}">
@@ -167,9 +192,29 @@
           <div class="button-section">
             <button type="submit" class="save-btn">저장하기</button>
           </div>
+          <!-- CSRF 토큰 -->
+          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
         </form>
       </div>
     </div>
+
+    <!-- 아바타 선택 모달 -->
+    <div id="avatarModal" style="display:none; position: fixed; z-index: 999; top:0; left:0; right:0; bottom:0; background-color: rgba(0,0,0,0.6);">
+      <div style="background:white; padding:20px; border-radius:10px; max-width:360px; margin:80px auto; text-align:center;">
+        <h3>아바타 선택</h3>
+        <div style="display: flex; gap: 10px; justify-content: center; margin-top: 16px;">
+          <img src="/images/avatar/avatar1.jpg" alt="아바타1" class="avatar-option" data-avatar="avatar1.jpg" style="width:80px; cursor:pointer;">
+          <img src="/images/avatar/avatar2.jpg" alt="아바타2" class="avatar-option" data-avatar="avatar2.jpg" style="width:80px; cursor:pointer;">
+          <img src="/images/avatar/avatar3.jpg" alt="아바타3" class="avatar-option" data-avatar="avatar3.jpg" style="width:80px; cursor:pointer;">
+        </div>
+        <button id="removeAvatarBtn" style="margin-top: 12px; background: #eee; padding: 8px 16px; border-radius: 8px; cursor:pointer;">아바타 없음</button>
+        <div style="margin-top: 16px;">
+          <button onclick="closeAvatarModal()" style="margin-top: 12px; background: #007BFF; color:white; padding: 8px 16px; border:none; border-radius:8px;">닫기</button>
+        </div>
+      </div>
+    </div>
+
 
     <!-- 메뉴 바 -->
     <div class="menu-bar">
@@ -187,7 +232,7 @@
       </div>
       <div class="menu-item" onclick="location.href='/mypage'">
         <div class="menu-icon">⚙️</div>
-        <div>설정2</div>
+        <div>설정</div>
       </div>
     </div>
   </div>
@@ -198,5 +243,53 @@
   <div class="phone-frame"></div>
 </div>
 <div class="phone-shadow"></div>
+<script>
+  // 에러 또는 메시지 박스를 몇 초 후에 사라지게 처리
+  window.addEventListener("DOMContentLoaded", function () {
+    const alertError = document.querySelector(".alert-error");
+    const alertSuccess = document.querySelector(".alert-success");
+
+    if (alertError) {
+      setTimeout(() => {
+        alertError.style.display = "none";
+      }, 3000); // 3초 후 사라짐
+    }
+
+    if (alertSuccess) {
+      setTimeout(() => {
+        alertSuccess.style.display = "none";
+      }, 3000); // 3초 후 사라짐
+    }
+  });
+
+
+  // 기존 메시지 사라지기 기능 유지
+
+  document.getElementById("avatarClickable").addEventListener("click", function () {
+    document.getElementById("avatarModal").style.display = "block";
+  });
+
+  function closeAvatarModal() {
+    document.getElementById("avatarModal").style.display = "none";
+  }
+
+  // 아바타 선택 이벤트
+  document.querySelectorAll(".avatar-option").forEach(img => {
+    img.addEventListener("click", function () {
+      const selected = img.getAttribute("data-avatar");
+      alert(selected + " 선택됨 (TODO: 서버 전송 또는 UI 변경)");
+
+      // TODO: 여기서 서버에 avatar 저장 로직 추가 가능
+      closeAvatarModal();
+    });
+  });
+
+  // '없음' 버튼
+  document.getElementById("removeAvatarBtn").addEventListener("click", function () {
+    alert("아바타 제거됨 (TODO: 서버 전송 또는 초기화)");
+    closeAvatarModal();
+  });
+</script>
+
 </body>
 </html>
