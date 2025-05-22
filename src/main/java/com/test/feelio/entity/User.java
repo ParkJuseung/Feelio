@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
@@ -80,25 +79,5 @@ public class User {
         return this;
     }
 
-    // 빌더 패턴 수정 (provider, providerId 추가)
-    @Builder
-    public User(Long id, String password, String nickname, String email,
-                boolean termsAgree, boolean privacyAgree, boolean marketingAgree,
-                boolean enabled, LocalDateTime createdAt, LocalDateTime updatedAt,
-                Role role, String provider, String providerId) {
-        this.id = id;
-        this.password = password;
-        this.nickname = nickname;
-        this.email = email;
-        this.termsAgree = termsAgree;
-        this.privacyAgree = privacyAgree;
-        this.marketingAgree = marketingAgree;
-        this.enabled = enabled;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-        this.role = role;
-        this.provider = provider;
-        this.providerId = providerId;
-    }
-
+    // 기존 빌더 메서드 제거하고 Lombok @Builder로 통일
 }

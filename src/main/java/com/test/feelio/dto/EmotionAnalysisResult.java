@@ -21,6 +21,9 @@ public class EmotionAnalysisResult {
     @JsonProperty("sentenceAnalysis")
     private List<SentenceAnalysis> sentenceAnalysis;
 
+    @JsonProperty("userActivities")
+    private List<UserActivity> userActivities;
+
     @JsonProperty("positiveFeedback")
     private String positiveFeedback;
 

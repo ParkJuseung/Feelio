@@ -1,21 +1,20 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <!-- 기본 스타일 -->
-    <link rel="stylesheet" href="/static/css/base.css">
+    <link rel="stylesheet" th:href="@{/css/base.css}">
     <!-- 폰 스타일 -->
-    <link rel="stylesheet" href="/static/css/phone-style.css">
+    <link rel="stylesheet" th:href="@{/css/phone-style.css}">
     <!-- 프레임 스타일 -->
-    <link rel="stylesheet" href="/static/css/phone-frame.css">
+    <link rel="stylesheet" th:href="@{/css/phone-frame.css}">
     <!-- 스크롤바 스타일 -->
-    <link rel="stylesheet" href="/static/css/scrollbar-style.css">
+    <link rel="stylesheet" th:href="@{/css/scrollbar-style.css}">
     <!-- 앱 콘텐츠 스타일 -->
-    <link rel="stylesheet" href="/static/css/app-content.css">
-    <!-- 일기 리스트 스타일 -->
+    <link rel="stylesheet" th:href="@{/css/app-content.css}">
     <style>
         .app-container {
             position: relative;
@@ -47,6 +46,12 @@
             position: relative;
             transition: all 0.3s ease;
             border: 1px solid #f0f0f0;
+            cursor: pointer;
+        }
+
+        .diary-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
         }
 
         .diary-item:active {
@@ -72,15 +77,24 @@
             margin-right: 8px;
         }
 
+        .diary-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
         .diary-content {
             font-size: 15px;
             line-height: 1.6;
-            color: #333;
+            color: #555;
             margin-bottom: 14px;
             display: -webkit-box;
             -webkit-line-clamp: 3;
             -webkit-box-orient: vertical;
             overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .diary-footer {
@@ -160,6 +174,8 @@
             color: #555;
             transition: all 0.3s ease;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            cursor: pointer;
+            text-decoration: none;
         }
 
         .filter-button.active {
@@ -191,6 +207,7 @@
             font-weight: 500;
             transition: all 0.3s ease;
             padding: 8px 0;
+            cursor: pointer;
         }
 
         .menu-item.active {
@@ -219,6 +236,8 @@
             z-index: 10;
             border: none;
             transition: all 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
         }
 
         .new-diary-button:active {
@@ -226,7 +245,7 @@
         }
 
         .empty-state {
-            display: none;
+            display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
@@ -289,26 +308,29 @@
         .diary-item:nth-child(4) {
             animation-delay: 0.3s;
         }
+
+        /* 감정 아이콘 스타일 */
+        .emotion-icon img {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+        }
+
+        .diary-emotion img {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .default-emotion {
+            font-size: 24px;
+        }
     </style>
     <title>감다 일기</title>
 </head>
 <body>
-<!--home.html-->
 <div class="phone-container">
-    <!-- 노치 및 상태바 -->
-<!--    <div class="notch"></div>-->
-<!--    <div class="status-bar">-->
-<!--        <div class="time">9:41</div>-->
-<!--        <div class="status-icons">-->
-<!--            <div class="signal">-->
-<!--                <div></div>-->
-<!--                <div></div>-->
-<!--                <div></div>-->
-<!--                <div></div>-->
-<!--            </div>-->
-<!--        </div>-->
-<!--    </div>-->
-
     <!-- 앱 컨텐츠 -->
     <div class="app-container">
         <div class="app-header header-layout-center">
@@ -318,83 +340,80 @@
 
         <!-- 필터 바 -->
         <div class="filter-bar">
-            <button class="filter-button active">전체 보기</button>
-            <button class="filter-button">북마크만</button>
+            <a href="/home" class="filter-button" th:classappend="${!bookmarkOnly} ? 'active' : ''">전체 보기</a>
+            <a href="/home?bookmarkOnly=true" class="filter-button" th:classappend="${bookmarkOnly} ? 'active' : ''">북마크만</a>
         </div>
 
         <!-- 일기 리스트 컨테이너 (스크롤 가능) -->
         <div class="diary-list-container">
             <div class="diary-list">
-                <!-- 일기 아이템 1 -->
-                <div class="diary-item">
-                    <div class="diary-date">
-                        2023년 10월 15일 일요일
-                        <div class="weather-tag">☀️ 맑음</div>
+                <!-- 일기가 있는 경우 -->
+                <div th:if="${diaries != null && !diaries.empty}">
+                    <div class="diary-item" th:each="diary : ${diaries}"
+                         th:onclick="|window.location.href='/diary/${diary.id}'|">
+                        <div class="diary-date">
+                            <span th:text="${#temporals.format(diary.diaryDate, 'yyyy년 MM월 dd일 EEEE')}"></span>
+                            <div class="weather-tag" th:if="${diary.weather != null}">
+                                <span th:text="${diary.weather}"></span>
+                            </div>
+                        </div>
+
+                        <div class="diary-title" th:text="${diary.title}">일기 제목</div>
+
+                        <div class="diary-content" th:text="${diary.content}">일기 내용</div>
+
+                        <!-- 일기에 사진이 있는 경우 첫 번째 사진 표시 -->
+                        <div th:if="${diary.existingPhotos != null && !diary.existingPhotos.empty}">
+                            <img th:src="${diary.existingPhotos[0].photoUrl}"
+                                 alt="일기 사진" class="diary-image">
+                        </div>
+
+                        <!-- 기존 diary-footer 부분을 이것으로 교체 -->
+                        <div class="diary-footer">
+                            <!-- 감정 정보 표시 -->
+                            <div class="diary-emotion">
+                                <!-- 감정 분석 결과가 있고 대표 감정이 있는 경우 -->
+                                <div th:if="${diary.emotionAnalysis != null and diary.emotionAnalysis.primaryEmotion != null}">
+                                    <!-- 감정 이미지가 있는 경우 -->
+                                    <img th:if="${diary.emotionAnalysis.primaryEmotion.emotionEmoji != null and !#strings.isEmpty(diary.emotionAnalysis.primaryEmotion.emotionEmoji)}"
+                                         th:src="${diary.emotionAnalysis.primaryEmotion.emotionEmoji}"
+                                         th:alt="${diary.emotionAnalysis.primaryEmotion.emotionName}">
+                                    <!-- 감정 이미지가 없는 경우 기본 이모지 -->
+                                    <span th:if="${diary.emotionAnalysis.primaryEmotion.emotionEmoji == null or #strings.isEmpty(diary.emotionAnalysis.primaryEmotion.emotionEmoji)}"
+                                          class="default-emotion">😊</span>
+                                </div>
+                                <!-- 감정 분석 결과가 없는 경우 기본 이모지 -->
+                                <span th:if="${diary.emotionAnalysis == null or diary.emotionAnalysis.primaryEmotion == null}"
+                                      class="default-emotion">😊</span>
+                            </div>
+
+                            <!-- 추천 음악 정보 -->
+                            <div class="diary-song" th:if="${diary.recommendedMusic != null}">
+                                🎵 <span th:text="${diary.recommendedMusic.title + ' - ' + diary.recommendedMusic.artist}"></span>
+                            </div>
+                            <div class="diary-song" th:if="${diary.recommendedMusic == null}">
+                                🎵 감정에 맞는 음악
+                            </div>
+                        </div>
+
+                        <!-- 북마크 버튼 -->
+                        <button class="bookmark-button" th:classappend="${diary.bookmarked} ? 'active' : ''"
+                                th:onclick="|event.stopPropagation(); toggleBookmark(${diary.id})|">★</button>
                     </div>
-                    <div class="diary-content">오늘은 친구랑 카페에서 수다 떨다가 너무 웃어서 좋았어! 오랜만에 만난 친구와 이야기를 나누며 스트레스도 풀리고 즐거운 시간을 보냈다.</div>
-                    <img src="/static/images/cup-hot-latte-art-coffee-wooden-table-with-book-coffee-shop-cafe.jpg" alt="카페 사진" class="diary-image">
-                    <div class="diary-footer">
-                        <div class="diary-emotion">😄</div>
-                        <div class="diary-song">🎵 행복한 하루 - 아이유</div>
-                    </div>
-                    <button class="bookmark-button active">★</button>
                 </div>
 
-                <!-- 일기 아이템 2 -->
-                <div class="diary-item">
-                    <div class="diary-date">
-                        2023년 10월 14일 토요일
-                        <div class="weather-tag">🌧️ 비</div>
-                    </div>
-                    <div class="diary-content">오늘은 비가 내려서 집에만 있었다. 창밖에 빗소리를 들으며 책을 읽었는데 생각보다 편안한 하루였다. 오랜만에 여유를 가질 수 있어서 좋았다.</div>
-                    <div class="diary-footer">
-                        <div class="diary-emotion">😌</div>
-                        <div class="diary-song">🎵 비의 랩소디 - 10cm</div>
-                    </div>
-                    <button class="bookmark-button">★</button>
+                <!-- 일기가 없는 경우 -->
+                <div class="empty-state" th:if="${diaries == null || diaries.empty}">
+                    <div class="empty-state-icon">📝</div>
+                    <div class="empty-state-text" th:if="${bookmarkOnly}">북마크된 일기가 없습니다</div>
+                    <div class="empty-state-text" th:unless="${bookmarkOnly}">아직 작성된 일기가 없습니다</div>
+                    <div class="empty-state-subtext">오른쪽 하단의 + 버튼을 눌러 첫 일기를 작성해보세요</div>
                 </div>
-
-                <!-- 일기 아이템 3 -->
-                <div class="diary-item">
-                    <div class="diary-date">
-                        2023년 10월 12일 목요일
-                        <div class="weather-tag">⛅ 흐림</div>
-                    </div>
-                    <div class="diary-content">오늘 발표 준비하느라 밤을 새웠다. 너무 피곤하고 스트레스 받았지만 발표는 잘 마쳐서 뿌듯하다. 이제 좀 쉬어야겠다.</div>
-                    <img src="https://source.unsplash.com/random/400x200?presentation" alt="발표 자료 사진" class="diary-image">
-                    <div class="diary-footer">
-                        <div class="diary-emotion">😓</div>
-                        <div class="diary-song">🎵 힘내 - BTS</div>
-                    </div>
-                    <button class="bookmark-button">★</button>
-                </div>
-
-                <!-- 일기 아이템 4 -->
-                <div class="diary-item">
-                    <div class="diary-date">
-                        2023년 10월 10일 화요일
-                        <div class="weather-tag">☀️ 맑음</div>
-                    </div>
-                    <div class="diary-content">오늘은 가을 소풍을 다녀왔다. 단풍이 정말 예뻤고 맑은 공기를 마시며 산책하니 기분이 좋아졌다. 친구들과 함께여서 더 즐거웠다.</div>
-                    <img src="https://source.unsplash.com/random/400x200?autumn" alt="가을 풍경 사진" class="diary-image">
-                    <div class="diary-footer">
-                        <div class="diary-emotion">🥰</div>
-                        <div class="diary-song">🎵 가을 아침 - 아이유</div>
-                    </div>
-                    <button class="bookmark-button active">★</button>
-                </div>
-            </div>
-
-            <!-- 비어있을 때 표시 -->
-            <div class="empty-state">
-                <div class="empty-state-icon">📝</div>
-                <div class="empty-state-text">아직 작성된 일기가 없습니다</div>
-                <div class="empty-state-subtext">오른쪽 하단의 + 버튼을 눌러 첫 일기를 작성해보세요</div>
             </div>
         </div>
 
         <!-- 새 일기 작성 버튼 -->
-        <button class="new-diary-button">+</button>
+        <a href="/diary/write" class="new-diary-button">+</a>
 
         <!-- 메뉴 바 -->
         <div class="menu-bar">
@@ -427,53 +446,46 @@
 <div class="phone-shadow"></div>
 
 <script>
-    // 북마크 버튼 기능
-    document.querySelectorAll('.bookmark-button').forEach(button => {
-        button.addEventListener('click', function(e) {
-            e.stopPropagation();
-            this.classList.toggle('active');
-        });
-    });
-
-    // 필터 버튼 기능
-    document.querySelectorAll('.filter-button').forEach(button => {
-        button.addEventListener('click', function() {
-            document.querySelectorAll('.filter-button').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            this.classList.add('active');
-
-            // 실제로는 여기서 필터링 로직이 들어갈 것입니다
-            const isBookmarkOnly = this.textContent === '북마크만';
-            const diaryItems = document.querySelectorAll('.diary-item');
-
-            if (isBookmarkOnly) {
-                diaryItems.forEach(item => {
-                    const isBookmarked = item.querySelector('.bookmark-button').classList.contains('active');
-                    item.style.display = isBookmarked ? 'block' : 'none';
-                });
-
-                // 북마크된 항목이 없으면 빈 상태 표시
-                const hasBookmarkedItems = Array.from(diaryItems).some(
-                    item => item.querySelector('.bookmark-button').classList.contains('active')
-                );
-
-                document.querySelector('.empty-state').style.display =
-                    hasBookmarkedItems ? 'none' : 'flex';
-            } else {
-                diaryItems.forEach(item => {
-                    item.style.display = 'block';
-                });
-                document.querySelector('.empty-state').style.display = 'none';
+    // 북마크 토글 함수
+    function toggleBookmark(diaryId) {
+        fetch(`/api/diary/${diaryId}/bookmark`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
             }
-        });
-    });
+        })
+            .then(response => {
+                if (response.ok) {
+                    // 페이지 새로고침하여 상태 업데이트
+                    location.reload();
+                } else {
+                    console.error('북마크 토글 실패');
+                }
+            })
+            .catch(error => {
+                console.error('북마크 토글 오류:', error);
+            });
+    }
 
-    // 일기 항목 클릭 이벤트 (실제로는 상세 페이지로 이동)
-    document.querySelectorAll('.diary-item').forEach(item => {
+    // 메뉴 아이템 클릭 이벤트
+    document.querySelectorAll('.menu-item').forEach(item => {
         item.addEventListener('click', function() {
-            // 실제로는 여기서 상세 페이지로 이동하는 로직이 들어갈 것입니다
-            console.log('일기 상세 보기');
+            // 실제로는 각 메뉴에 맞는 페이지로 이동하는 로직이 들어갈 것입니다
+            const menuText = this.querySelector('div:last-child').textContent;
+            switch(menuText) {
+                case '일기':
+                    window.location.href = '/home';
+                    break;
+                case '채팅':
+                    // window.location.href = '/chatbot';
+                    break;
+                case '통계':
+                    // window.location.href = '/statistics';
+                    break;
+                case '설정':
+                    // window.location.href = '/settings';
+                    break;
+            }
         });
     });
 </script>

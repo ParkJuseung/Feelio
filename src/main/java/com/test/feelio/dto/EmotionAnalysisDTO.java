@@ -15,6 +15,6 @@ public class EmotionAnalysisDTO {
     private EmotionDTO primaryEmotion;
     private List<EmotionPercentageDTO> emotions;
     private List<SentenceEmotionDTO> sentenceEmotions;
-    private PositiveFeedbackDTO positiveFeedback;
+    private String positiveFeedback;
     private List<ActivityRecommendationDTO> activityRecommendations;
 }
