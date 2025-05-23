@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+  <!-- 스타일들 -->
+  <link rel="stylesheet" th:href="@{/css/base.css}">
+  <link rel="stylesheet" th:href="@{/css/phone-style.css}">
+  <link rel="stylesheet" th:href="@{/css/phone-frame.css}">
+  <link rel="stylesheet" th:href="@{/css/scrollbar-style.css}">
+  <link rel="stylesheet" th:href="@{/css/app-content.css}">
+
+  <style>
+    .app-container {
+      position: relative;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+    .profile-scroll-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 16px 70px;
+      margin-bottom: 60px;
+    }
+    .myinfo-edit-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px;
+      gap: 24px;
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0, 123, 255, 0.06);
+    }
+    .avatar-section .avatar {
+      width: 100px;
+      height: 100px;
+      background-color: #f0f6ff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+      color: #007BFF;
+    }
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      width: 100%;
+      max-width: 342px;
+    }
+    .input-group label {
+      font-weight: 600;
+      font-size: 16px;
+      color: #212121;
+    }
+    .input-group input {
+      padding: 18px 20px;
+      border-radius: 10px;
+      border: 1px solid #FAFAFA;
+      background: #FAFAFA;
+      font-size: 16px;
+      color: #212121;
+    }
+    .input-group input:disabled {
+      background: #eeeeee;
+      color: #999999;
+    }
+    .button-section {
+      width: 100%;
+      max-width: 342px;
+      margin-top: 12px;
+    }
+    .save-btn {
+      width: 100%;
+      padding: 16px;
+      background-color: #007BFF;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .save-btn:hover {
+      background-color: #0056b3;
+    }
+  </style>
+
+  <title>Feelio</title>
+</head>
+<body>
+<div class="phone-container">
+  <div class="app-container">
+    <div class="app-header header-layout-center">
+      <div class="app-title">감다 일기</div>
+      <div class="app-date">내 정보 (소셜 로그인)</div>
+    </div>
+
+    <div class="profile-scroll-container">
+      <div class="myinfo-edit-container">
+        <div class="avatar-section">
+          <div class="avatar">👤</div>
+        </div>
+        <form action="/profile/profile-oauth" method="post">
+          <div class="input-group">
+            <label for="nickname">닉네임</label>
+            <input type="text" id="nickname" name="nickname" th:value="${user.nickname}">
+          </div>
+          <div class="input-group">
+            <label for="email">이메일 (소셜 계정)</label>
+            <input type="email" id="email" th:value="${user.email}" disabled>
+          </div>
+          <div class="button-section">
+            <button type="submit" class="save-btn">저장하기</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 프레임 & 그림자 -->
+<div class="frame-container">
+  <div class="phone-frame"></div>
+</div>
+<div class="phone-shadow"></div>
+</body>
+</html>
