@@ -80,4 +80,9 @@ public class Diary {
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
-}
+
+    public Object getAudioUrl() {
+
+        return null;
+    }
+    }
