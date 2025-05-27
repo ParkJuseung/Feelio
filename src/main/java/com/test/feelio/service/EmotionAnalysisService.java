@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.*;
@@ -18,6 +19,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional // 클래스 레벨에 @Transactional 적용
 public class EmotionAnalysisService {
 
     private final WebClient webClient = WebClient.builder()
@@ -29,7 +31,8 @@ public class EmotionAnalysisService {
     private final SentenceEmotionRepository sentenceEmotionRepository;
     private final FeedbackTemplateRepository feedbackTemplateRepository;
     private final ActivityEffectRepository activityEffectRepository;
-    private final DiaryActivityRepository diaryActivityRepository; // 추가
+    private final DiaryActivityRepository diaryActivityRepository;
+    private final EmotionScoreManager emotionScoreManager; // 추가: 감정 점수 관리자 주입
 
     @Value("${openai.api.key}")
     private String openaiApiKey;
@@ -60,62 +63,62 @@ public class EmotionAnalysisService {
 
     private String createAnalysisPrompt(String diaryContent) {
         return """
-        다음 일기 내용을 분석해주세요.
-        
-        일기 내용:
-        %s
-        
-        다음 작업을 수행해주세요:
-        1. 전체 감정 분석: 행복, 만족, 설렘, 평온, 불안, 슬픔, 분노 중에서 감정 비율(%%)을 계산
-        
-        2. 문장별 감정 분석: 각 문장의 감정과 활동 유형 분석
-        
-        3. 사용자 활동 추출: 일기 내용에서 사용자가 실제로 수행한 활동(예: 산책, 독서, 대화, 운동 등)을 구체적으로 추출
-        
-        4. 긍정적 피드백 메시지 생성: 일기의 내용과 관련된 구체적인 긍정적 피드백 생성
-        
-        5. 감정-행동 기반 활동 추천: 사용자의 현재 감정 상태를 개선하기 위해 3개 이상의 구체적인 활동 추천
-        
-        응답 형식 (JSON):
-        {
-            "overallEmotions": [
-                {"emotion": "행복", "percentage": 35.5},
-                {"emotion": "불안", "percentage": 25.0}
-            ],
-            "sentenceAnalysis": [
+                다음 일기 내용을 분석해주세요.
+                
+                일기 내용:
+                %s
+                
+                다음 작업을 수행해주세요:
+                1. 전체 감정 분석: 행복, 만족, 설렘, 평온, 불안, 슬픔, 분노 중에서 감정 비율(%%)을 계산
+                
+                2. 문장별 감정 분석: 각 문장의 감정과 활동 유형 분석
+                
+                3. 사용자 활동 추출: 일기 내용에서 사용자가 실제로 수행한 활동(예: 산책, 독서, 대화, 운동 등)을 구체적으로 추출
+                
+                4. 긍정적 피드백 메시지 생성: 일기의 내용과 관련된 구체적인 긍정적 피드백 생성
+                
+                5. 감정-행동 기반 활동 추천: 사용자의 현재 감정 상태를 개선하기 위해 3개 이상의 구체적인 활동 추천
+                
+                응답 형식 (JSON):
                 {
-                    "sentence": "오늘은 좋은 일이 있었다.",
-                    "emotion": "행복",
-                    "activityType": "긍정적 경험"
+                    "overallEmotions": [
+                        {"emotion": "행복", "percentage": 35.5},
+                        {"emotion": "불안", "percentage": 25.0}
+                    ],
+                    "sentenceAnalysis": [
+                        {
+                            "sentence": "오늘은 좋은 일이 있었다.",
+                            "emotion": "행복",
+                            "activityType": "긍정적 경험"
+                        }
+                    ],
+                    "userActivities": [
+                        {
+                            "activity": "친구와 대화",
+                            "relatedEmotion": "행복"
+                        },
+                        {
+                            "activity": "공원 산책",
+                            "relatedEmotion": "평온"
+                        }
+                    ],
+                    "positiveFeedback": "오늘은 특별한 하루였네요! 긍정적인 경험이 많았던 것 같습니다.",
+                    "activityRecommendations": [
+                        {
+                            "activity": "명상",
+                            "reason": "불안한 감정을 완화하는데 도움이 될 것입니다."
+                        },
+                        {
+                            "activity": "가벼운 조깅",
+                            "reason": "운동을 통해 스트레스를 해소하고 기분을 전환할 수 있습니다."
+                        },
+                        {
+                            "activity": "친구와 대화",
+                            "reason": "감정을 공유하고 소통함으로써 감정 해소에 도움이 됩니다."
+                        }
+                    ]
                 }
-            ],
-            "userActivities": [
-                {
-                    "activity": "친구와 대화",
-                    "relatedEmotion": "행복"
-                },
-                {
-                    "activity": "공원 산책",
-                    "relatedEmotion": "평온"
-                }
-            ],
-            "positiveFeedback": "오늘은 특별한 하루였네요! 긍정적인 경험이 많았던 것 같습니다.",
-            "activityRecommendations": [
-                {
-                    "activity": "명상",
-                    "reason": "불안한 감정을 완화하는데 도움이 될 것입니다."
-                },
-                {
-                    "activity": "가벼운 조깅",
-                    "reason": "운동을 통해 스트레스를 해소하고 기분을 전환할 수 있습니다."
-                },
-                {
-                    "activity": "친구와 대화",
-                    "reason": "감정을 공유하고 소통함으로써 감정 해소에 도움이 됩니다."
-                }
-            ]
-        }
-        """.formatted(diaryContent);
+                """.formatted(diaryContent);
     }
 
     // DIARY_ACTIVITIES 테이블에 데이터 저장하는 코드 추가
@@ -425,8 +428,25 @@ public class EmotionAnalysisService {
 
         // 활동 추천 데이터 저장 (AI가 추천하는 활동)
         saveActivityRecommendations(diaryId, userId, result);
-    }
 
+        // 대표 감정에 따라 감정 점수 업데이트 (추가된 부분)
+        if (primaryEmotion != null && userId != null) {
+            try {
+                log.info("대표 감정에 따른 감정 점수 업데이트 시작 - 사용자: {}, 감정: {}, 일기: {}",
+                        userId, primaryEmotion.getEmotion(), diaryId);
+
+                // 새로운 감정 점수 관리자를 통해 점수 업데이트
+                emotionScoreManager.updateEmotionScore(userId, primaryEmotion.getEmotion());
+                log.info("감정 점수 업데이트 완료");
+            } catch (Exception e) {
+                log.error("감정 점수 업데이트 중 오류 발생: {}", e.getMessage(), e);
+                // 감정 점수 업데이트 실패가 전체 프로세스를 중단시키지 않도록 예외 처리
+            }
+        } else {
+            log.warn("대표 감정 또는 사용자 ID가 없어 감정 점수를 업데이트할 수 없습니다. 대표감정: {}, 사용자: {}",
+                    primaryEmotion != null ? primaryEmotion.getEmotion() : "없음", userId);
+        }
+    }
 
     private List<EmotionPercentageDTO> normalizeEmotionPercentages(List<EmotionPercentageDTO> emotions) {
         // 총합 계산
@@ -494,7 +514,7 @@ public class EmotionAnalysisService {
         List<ActivityRecommendationDTO> recommendations = new ArrayList<>();
         if (result.getActivityRecommendations() != null) {
             recommendations = result.getActivityRecommendations().stream()
-                    .map(this::toActivityRecommendationDTO)
+                    .map(ar -> toActivityRecommendationDTO(ar)) // 명시적 메서드 참조로 수정
                     .collect(Collectors.toList());
 
             log.info("활동 추천 수: {} 개", recommendations.size());
@@ -511,7 +531,6 @@ public class EmotionAnalysisService {
 
         return dto;
     }
-
     private void saveFeedbackTemplate(String feedback, Long emotionId, Long diaryId) {
         if (feedback == null || feedback.trim().isEmpty() || emotionId == null) {
             log.warn("피드백 또는 감정 ID가 null이어서 템플릿을 저장할 수 없습니다.");
@@ -572,6 +591,7 @@ public class EmotionAnalysisService {
                 .build();
     }
 
+    // ActivityRecommendation을 ActivityRecommendationDTO로 변환하는 메서드
     private ActivityRecommendationDTO toActivityRecommendationDTO(ActivityRecommendation ar) {
         return ActivityRecommendationDTO.builder()
                 .activity(ar.getActivity())
@@ -584,4 +604,6 @@ public class EmotionAnalysisService {
         // 실제로는 데이터베이스에서 이 활동의 평균 효과성을 조회
         return activityEffectRepository.findAverageChangeScore(activity).orElse(0.0);
     }
+
+
 }

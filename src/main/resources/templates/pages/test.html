@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spring Boot 아키텍처 다이어그램</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', 'Malgun Gothic', sans-serif;
+      background: #f8f9fa;
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    .diagram-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      padding: 40px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+
+    .title {
+      text-align: center;
+      font-size: 2.2em;
+      color: #2c3e50;
+      margin-bottom: 40px;
+      font-weight: bold;
+    }
+
+    .architecture-flow {
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+      align-items: center;
+    }
+
+    .layer {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 40px;
+      width: 100%;
+      flex-wrap: wrap;
+    }
+
+    .component {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      min-width: 140px;
+      text-align: center;
+    }
+
+    .icon-container {
+      width: 80px;
+      height: 80px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5em;
+      color: white;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .icon-container:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+    }
+
+    .user { background: linear-gradient(135deg, #667eea, #764ba2); }
+    .frontend { background: linear-gradient(135deg, #f093fb, #f5576c); }
+    .controller { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+    .service { background: linear-gradient(135deg, #43e97b, #38f9d7); }
+    .repository { background: linear-gradient(135deg, #fa709a, #fee140); }
+    .database { background: linear-gradient(135deg, #a8edea, #fed6e3); }
+    .external { background: linear-gradient(135deg, #ffecd2, #fcb69f); }
+
+    .component-label {
+      font-weight: bold;
+      color: #2c3e50;
+      font-size: 1.1em;
+    }
+
+    .component-desc {
+      color: #7f8c8d;
+      font-size: 0.9em;
+      max-width: 120px;
+      line-height: 1.3;
+    }
+
+    .arrow {
+      font-size: 2.5em;
+      color: #3498db;
+      animation: bounce 2s infinite;
+    }
+
+    @keyframes bounce {
+      0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+      40% { transform: translateY(-8px); }
+      60% { transform: translateY(-4px); }
+    }
+
+    .horizontal-arrow {
+      font-size: 2em;
+      color: #3498db;
+      margin: 0 20px;
+      animation: slideRight 2s infinite;
+    }
+
+    @keyframes slideRight {
+      0%, 100% { transform: translateX(0); }
+      50% { transform: translateX(8px); }
+    }
+
+    .data-flow-section {
+      background: linear-gradient(135deg, #e3f2fd, #f3e5f5);
+      border-radius: 12px;
+      padding: 20px;
+      margin: 30px 0;
+      border-left: 5px solid #2196f3;
+    }
+
+    .data-flow-title {
+      font-size: 1.3em;
+      color: #1976d2;
+      font-weight: bold;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .flow-steps {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    .flow-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
+      min-width: 120px;
+    }
+
+    .step-number {
+      width: 30px;
+      height: 30px;
+      background: #2196f3;
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 0.9em;
+    }
+
+    .step-text {
+      font-size: 0.9em;
+      color: #424242;
+      text-align: center;
+      line-height: 1.3;
+    }
+
+    .tech-stack {
+      background: #263238;
+      color: white;
+      border-radius: 12px;
+      padding: 25px;
+      margin-top: 30px;
+    }
+
+    .tech-title {
+      font-size: 1.4em;
+      margin-bottom: 20px;
+      text-align: center;
+      color: #4fc3f7;
+    }
+
+    .tech-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+    }
+
+    .tech-item {
+      background: rgba(255,255,255,0.1);
+      padding: 15px;
+      border-radius: 8px;
+      text-align: center;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .tech-category {
+      font-weight: bold;
+      color: #81c784;
+      margin-bottom: 8px;
+    }
+
+    .details-popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      max-width: 500px;
+      width: 90%;
+      z-index: 1000;
+      display: none;
+    }
+
+    .popup-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 999;
+      display: none;
+    }
+
+    .popup-title {
+      font-size: 1.5em;
+      color: #2c3e50;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #3498db;
+      padding-bottom: 10px;
+    }
+
+    .popup-content {
+      line-height: 1.6;
+      color: #555;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      background: #e74c3c;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      cursor: pointer;
+      font-size: 1.1em;
+    }
+
+    @media (max-width: 768px) {
+      .layer {
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .horizontal-arrow {
+        transform: rotate(90deg);
+        margin: 10px 0;
+      }
+
+      .flow-steps {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="diagram-container">
+  <h1 class="title">🏗️ Spring Boot 포스팅 시스템 아키텍처</h1>
+
+  <div class="architecture-flow">
+    <!-- 사용자 레이어 -->
+    <div class="layer">
+      <div class="component">
+        <div class="icon-container user" data-info="user">
+          👤
+        </div>
+        <div class="component-label">사용자</div>
+        <div class="component-desc">웹 브라우저<br/>모바일 앱</div>
+      </div>
+    </div>
+
+    <div class="arrow">⬇️</div>
+
+    <!-- 프론트엔드 레이어 -->
+    <div class="layer">
+      <div class="component">
+        <div class="icon-container frontend" data-info="frontend">
+          🎨
+        </div>
+        <div class="component-label">Frontend</div>
+        <div class="component-desc">Thymeleaf<br/>JavaScript<br/>Google Maps</div>
+      </div>
+    </div>
+
+    <div class="arrow">⬇️</div>
+
+    <!-- 컨트롤러 레이어 -->
+    <div class="layer">
+      <div class="component">
+        <div class="icon-container controller" data-info="controller">
+          🎮
+        </div>
+        <div class="component-label">Controller</div>
+        <div class="component-desc">@RestController<br/>@PostMapping<br/>DTO 바인딩</div>
+      </div>
+
+      <div class="horizontal-arrow">➡️</div>
+
+      <div class="component">
+        <div class="icon-container external" data-info="validation">
+          ✅
+        </div>
+        <div class="component-label">Validation</div>
+        <div class="component-desc">@Valid<br/>BindingResult<br/>Bean Validation</div>
+      </div>
+    </div>
+
+    <div class="arrow">⬇️</div>
+
+    <!-- 서비스 레이어 -->
+    <div class="layer">
+      <div class="component">
+        <div class="icon-container service" data-info="service">
+          ⚙️
+        </div>
+        <div class="component-label">Service</div>
+        <div class="component-desc">@Service<br/>@Transactional<br/>비즈니스 로직</div>
+      </div>
+
+      <div class="horizontal-arrow">➡️</div>
+
+      <div class="component">
+        <div class="icon-container external" data-info="s3">
+          ☁️
+        </div>
+        <div class="component-label">AWS S3</div>
+        <div class="component-desc">이미지 업로드<br/>파일 저장<br/>CDN</div>
+      </div>
+    </div>
+
+    <div class="arrow">⬇️</div>
+
+    <!-- 리포지토리 레이어 -->
+    <div class="layer">
+      <div class="component">
+        <div class="icon-container repository" data-info="jpa">
+          📚
+        </div>
+        <div class="component-label">JPA Repository</div>
+        <div class="component-desc">JpaRepository<br/>CRUD 메서드<br/>QueryDSL</div>
+      </div>
+
+      <div class="horizontal-arrow">➡️</div>
+
+      <div class="component">
+        <div class="icon-container repository" data-info="mybatis">
+          📋
+        </div>
+        <div class="component-label">MyBatis</div>
+        <div class="component-desc">복잡한 쿼리<br/>동적 SQL<br/>XML 매핑</div>
+      </div>
+    </div>
+
+    <div class="arrow">⬇️</div>
+
+    <!-- 데이터베이스 & 엔티티 레이어 -->
+    <div class="layer">
+      <div class="component">
+        <div class="icon-container database" data-info="entity">
+          🗃️
+        </div>
+        <div class="component-label">JPA Entity</div>
+        <div class="component-desc">@Entity<br/>연관관계<br/>@Embedded</div>
+      </div>
+
+      <div class="horizontal-arrow">➡️</div>
+
+      <div class="component">
+        <div class="icon-container database" data-info="oracle">
+          🏛️
+        </div>
+        <div class="component-label">Oracle DB</div>
+        <div class="component-desc">데이터 저장<br/>트랜잭션<br/>ACID</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 데이터 흐름 -->
+  <div class="data-flow-section">
+    <div class="data-flow-title">
+      📊 포스팅 작성 데이터 흐름
+    </div>
+    <div class="flow-steps">
+      <div class="flow-step">
+        <div class="step-number">1</div>
+        <div class="step-text">사용자 입력<br/>(제목, 내용, 이미지)</div>
+      </div>
+      <div class="flow-step">
+        <div class="step-number">2</div>
+        <div class="step-text">클라이언트 검증<br/>Ajax 전송</div>
+      </div>
+      <div class="flow-step">
+        <div class="step-number">3</div>
+        <div class="step-text">Controller<br/>DTO 바인딩</div>
+      </div>
+      <div class="flow-step">
+        <div class="step-number">4</div>
+        <div class="step-text">Service<br/>비즈니스 처리</div>
+      </div>
+      <div class="flow-step">
+        <div class="step-number">5</div>
+        <div class="step-text">S3 업로드<br/>URL 반환</div>
+      </div>
+      <div class="flow-step">
+        <div class="step-number">6</div>
+        <div class="step-text">Entity 생성<br/>DB 저장</div>
+      </div>
+      <div class="flow-step">
+        <div class="step-number">7</div>
+        <div class="step-text">응답 DTO<br/>클라이언트 반환</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 기술 스택 -->
+  <div class="tech-stack">
+    <div class="tech-title">🛠️ 기술 스택</div>
+    <div class="tech-grid">
+      <div class="tech-item">
+        <div class="tech-category">Backend</div>
+        Spring Boot, Java 17
+      </div>
+      <div class="tech-item">
+        <div class="tech-category">Database</div>
+        Oracle DB, SQL Developer
+      </div>
+      <div class="tech-item">
+        <div class="tech-category">ORM</div>
+        JPA, MyBatis, QueryDSL
+      </div>
+      <div class="tech-item">
+        <div class="tech-category">Frontend</div>
+        Thymeleaf, JavaScript, CSS
+      </div>
+      <div class="tech-item">
+        <div class="tech-category">Cloud</div>
+        AWS S3, EC2
+      </div>
+      <div class="tech-item">
+        <div class="tech-category">API</div>
+        Google Maps, REST API
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 팝업 -->
+<div class="popup-overlay" id="overlay" onclick="closePopup()"></div>
+<div class="details-popup" id="popup">
+  <button class="close-btn" onclick="closePopup()">×</button>
+  <div class="popup-title" id="popupTitle"></div>
+  <div class="popup-content" id="popupContent"></div>
+</div>
+
+<script>
+  const componentDetails = {
+    user: {
+      title: '👤 사용자 레이어',
+      content: `
+                    <strong>주요 기능:</strong><br/>
+                    • 웹 브라우저를 통한 접근<br/>
+                    • 포스팅 작성 및 조회<br/>
+                    • 이미지 업로드<br/>
+                    • 댓글 및 좋아요 인터랙션<br/>
+                    • Google Maps를 통한 위치 선택
+                `
+    },
+    frontend: {
+      title: '🎨 Frontend 레이어',
+      content: `
+                    <strong>기술 스택:</strong><br/>
+                    • <strong>Thymeleaf:</strong> 서버사이드 템플릿 엔진<br/>
+                    • <strong>JavaScript:</strong> 클라이언트 검증, Ajax<br/>
+                    • <strong>Google Maps API:</strong> 지도 표시 및 위치 선택<br/>
+                    • <strong>CSS:</strong> 반응형 UI 디자인<br/>
+                    • <strong>Bootstrap:</strong> UI 컴포넌트
+                `
+    },
+    controller: {
+      title: '🎮 Controller 레이어',
+      content: `
+                    <strong>Spring MVC:</strong><br/>
+                    • <strong>@RestController:</strong> REST API 구현<br/>
+                    • <strong>@PostMapping:</strong> HTTP POST 요청 처리<br/>
+                    • <strong>@ModelAttribute:</strong> DTO 바인딩<br/>
+                    • <strong>@RequestParam:</strong> 파라미터 처리<br/>
+                    • <strong>ResponseEntity:</strong> HTTP 응답 관리
+                `
+    },
+    validation: {
+      title: '✅ Validation 레이어',
+      content: `
+                    <strong>데이터 검증:</strong><br/>
+                    • <strong>@Valid:</strong> DTO 유효성 검증<br/>
+                    • <strong>BindingResult:</strong> 에러 정보 수집<br/>
+                    • <strong>Bean Validation:</strong> @NotNull, @Size 등<br/>
+                    • <strong>Custom Validator:</strong> 비즈니스 규칙 검증<br/>
+                    • <strong>에러 메시지:</strong> 국제화 지원
+                `
+    },
+    service: {
+      title: '⚙️ Service 레이어',
+      content: `
+                    <strong>비즈니스 로직:</strong><br/>
+                    • <strong>@Service:</strong> 서비스 컴포넌트<br/>
+                    • <strong>@Transactional:</strong> 트랜잭션 관리<br/>
+                    • <strong>DTO ↔ Entity:</strong> 데이터 변환<br/>
+                    • <strong>비즈니스 규칙:</strong> 검증 및 처리<br/>
+                    • <strong>외부 서비스:</strong> S3, Maps API 연동
+                `
+    },
+    s3: {
+      title: '☁️ AWS S3',
+      content: `
+                    <strong>파일 저장소:</strong><br/>
+                    • <strong>이미지 업로드:</strong> MultipartFile 처리<br/>
+                    • <strong>파일 검증:</strong> 타입, 크기 체크<br/>
+                    • <strong>고유 파일명:</strong> UUID 생성<br/>
+                    • <strong>CDN 연동:</strong> 빠른 이미지 로딩<br/>
+                    • <strong>보안:</strong> IAM 정책 적용
+                `
+    },
+    jpa: {
+      title: '📚 JPA Repository',
+      content: `
+                    <strong>데이터 접근:</strong><br/>
+                    • <strong>JpaRepository:</strong> 기본 CRUD<br/>
+                    • <strong>@Query:</strong> 커스텀 쿼리<br/>
+                    • <strong>QueryDSL:</strong> 동적 쿼리<br/>
+                    • <strong>Paging:</strong> 페이지네이션<br/>
+                    • <strong>Specification:</strong> 검색 조건
+                `
+    },
+    mybatis: {
+      title: '📋 MyBatis',
+      content: `
+                    <strong>SQL 매핑:</strong><br/>
+                    • <strong>XML 매퍼:</strong> 복잡한 SQL<br/>
+                    • <strong>동적 SQL:</strong> if, choose, foreach<br/>
+                    • <strong>ResultMap:</strong> 결과 매핑<br/>
+                    • <strong>TypeHandler:</strong> 타입 변환<br/>
+                    • <strong>캐싱:</strong> 1차, 2차 캐시
+                `
+    },
+    entity: {
+      title: '🗃️ JPA Entity',
+      content: `
+                    <strong>엔티티 설계:</strong><br/>
+                    • <strong>@Entity:</strong> 테이블 매핑<br/>
+                    • <strong>@OneToMany:</strong> 일대다 관계<br/>
+                    • <strong>@ManyToOne:</strong> 다대일 관계<br/>
+                    • <strong>@Embedded:</strong> 값 타입<br/>
+                    • <strong>Cascade:</strong> 영속성 전이
+                `
+    },
+    oracle: {
+      title: '🏛️ Oracle Database',
+      content: `
+                    <strong>데이터베이스:</strong><br/>
+                    • <strong>테이블 설계:</strong> 정규화, 인덱스<br/>
+                    • <strong>시퀀스:</strong> ID 자동 생성<br/>
+                    • <strong>트리거:</strong> 카운트 자동 업데이트<br/>
+                    • <strong>제약조건:</strong> FK, UNIQUE<br/>
+                    • <strong>프로시저:</strong> 복잡한 비즈니스 로직
+                `
+    }
+  };
+
+  function showPopup(key) {
+    const detail = componentDetails[key];
+    if (detail) {
+      document.getElementById('popupTitle').textContent = detail.title;
+      document.getElementById('popupContent').innerHTML = detail.content;
+      document.getElementById('overlay').style.display = 'block';
+      document.getElementById('popup').style.display = 'block';
+    }
+  }
+
+  function closePopup() {
+    document.getElementById('overlay').style.display = 'none';
+    document.getElementById('popup').style.display = 'none';
+  }
+
+  // 이벤트 리스너
+  document.addEventListener('DOMContentLoaded', function() {
+    const components = document.querySelectorAll('[data-info]');
+    components.forEach(component => {
+      component.addEventListener('click', function() {
+        const infoKey = this.getAttribute('data-info');
+        showPopup(infoKey);
+      });
+    });
+  });
+</script>
+</body>
+</html>
