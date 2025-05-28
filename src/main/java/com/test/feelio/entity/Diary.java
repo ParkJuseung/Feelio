@@ -81,8 +81,5 @@ public class Diary {
         this.updatedAt = LocalDateTime.now();
     }
 
-    public Object getAudioUrl() {
 
-        return null;
-    }
     }

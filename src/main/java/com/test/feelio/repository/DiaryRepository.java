@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -44,6 +45,12 @@ public interface DiaryRepository extends JpaRepository<Diary, Long> {
 
     @Query("SELECT d FROM Diary d WHERE d.user.id = :userId AND d.diaryDate = :date")
     Optional<Diary> findByUserIdAndDate(@Param("userId") Long userId, @Param("date") LocalDate date);
+
+
+    @Query("SELECT d FROM Diary d WHERE d.user.id = :userId AND d.diaryDate BETWEEN :start AND :end")
+    Optional<Diary> findDiaryOnDate(@Param("userId") Long userId,
+                                    @Param("start") LocalDateTime start,
+                                    @Param("end") LocalDateTime end);
 
 
 }

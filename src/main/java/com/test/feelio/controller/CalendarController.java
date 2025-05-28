@@ -1,45 +1,55 @@
 package com.test.feelio.controller;
 
+import com.test.feelio.entity.Diary;
+import com.test.feelio.entity.DiaryPhoto;
 import com.test.feelio.entity.User;
 import com.test.feelio.repository.DiaryEmotionRepository;
+import com.test.feelio.repository.DiaryRepository;
+import com.test.feelio.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
-import jakarta.servlet.http.HttpSession;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Controller
 @RequiredArgsConstructor
 public class CalendarController {
 
     private final DiaryEmotionRepository diaryEmotionRepository;
+    private final UserService userService; // 이메일로 유저 조회용
+    private final DiaryRepository diaryRepository;
 
     @GetMapping("/calendar")
-    public String calendarView(HttpSession session,
-                               @RequestParam(required = false, defaultValue = "monthly") String mode,
+    public String calendarView(@RequestParam(required = false, defaultValue = "monthly") String mode,
                                @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM") YearMonth yearMonth,
                                Model model) {
 
-        // 현재 월 없으면 오늘 기준
         if (yearMonth == null) {
             yearMonth = YearMonth.now();
         }
 
-        // 세션에서 유저 정보 꺼내기
-        User user = (User) session.getAttribute("user");
+        // SecurityContext에서 인증된 사용자 정보 가져오기
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated() || auth.getPrincipal().equals("anonymousUser")) {
+            return "redirect:/login?error=sessionExpired";
+        }
+
+        String email = auth.getName();
+        User user = userService.findByEmail(email);
         if (user == null) {
-            throw new RuntimeException("사용자 없음"); // 로그인 안 된 상태 처리
+            return "redirect:/login?error=userNotFound";
         }
 
         Long userId = user.getId();
@@ -58,42 +68,27 @@ public class CalendarController {
             Map<String, Long> diaryIdMap = new HashMap<>();
             DateTimeFormatter keyFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-            System.out.println("===== 월간 감정 데이터 =====");
-            System.out.println("사용자 ID: " + userId);
-            System.out.println("조회 범위: " + startDate + " ~ " + endDate);
-            System.out.println("조회된 감정 수: " + emotionData.size());
-
             for (Object[] row : emotionData) {
                 Long diaryId = ((Number) row[0]).longValue();
-                // java.sql.Date를 LocalDate로 변환
                 LocalDate diaryDate;
                 if (row[1] instanceof java.sql.Date) {
                     diaryDate = ((java.sql.Date) row[1]).toLocalDate();
                 } else if (row[1] instanceof java.sql.Timestamp) {
                     diaryDate = ((java.sql.Timestamp) row[1]).toLocalDateTime().toLocalDate();
                 } else {
-                    // 이미 LocalDate인 경우
                     diaryDate = (LocalDate) row[1];
                 }
                 String emotionEmoji = (String) row[2];
-
                 String key = diaryDate.format(keyFormatter);
+
                 if (!emotionMap.containsKey(key)) {
-                    // emotionEmoji가 full path인지 확인하고, 파일명만 추출
-                    String fileName = emotionEmoji;
-                    if (emotionEmoji.contains("/")) {
-                        fileName = emotionEmoji.substring(emotionEmoji.lastIndexOf("/") + 1);
-                    }
+                    String fileName = emotionEmoji.contains("/") ?
+                            emotionEmoji.substring(emotionEmoji.lastIndexOf("/") + 1) : emotionEmoji;
                     emotionMap.put(key, fileName);
                     diaryIdMap.put(key, diaryId);
-
-
-                    System.out.println("🧩 " + key + " → " + fileName + " (diaryId: " + diaryId + ")");
-                    System.out.println("🧩 날짜: " + key + ", 이모지: " + emotionEmoji);
                 }
             }
 
-            // 달력 렌더링용 정보
             LocalDate firstDay = yearMonth.atDay(1);
             int firstDayOfWeek = firstDay.getDayOfWeek().getValue() % 7;
             int lastDay = yearMonth.lengthOfMonth();
@@ -104,9 +99,6 @@ public class CalendarController {
             model.addAttribute("diaryIdMap", diaryIdMap);
 
         } else if ("yearly".equals(mode)) {
-            LocalDate startDate = LocalDate.of(yearMonth.getYear(), 1, 1);
-            LocalDate endDate = LocalDate.of(yearMonth.getYear(), 12, 31);
-
             List<Object[]> yearlyData = diaryEmotionRepository.findYearlyEmotions(userId, String.valueOf(yearMonth.getYear()));
 
             Map<String, String> yearlyEmotionMap = new HashMap<>();
@@ -115,13 +107,9 @@ public class CalendarController {
             for (Object[] row : yearlyData) {
                 LocalDate date = (LocalDate) row[0];
                 String emotionEmoji = (String) row[1];
-
-                String key = date.format(keyFormatter);
-                String fileName = emotionEmoji;
-                if (emotionEmoji.contains("/")) {
-                    fileName = emotionEmoji.substring(emotionEmoji.lastIndexOf("/") + 1);
-                }
-                yearlyEmotionMap.put(key, fileName);
+                String fileName = emotionEmoji.contains("/") ?
+                        emotionEmoji.substring(emotionEmoji.lastIndexOf("/") + 1) : emotionEmoji;
+                yearlyEmotionMap.put(date.format(keyFormatter), fileName);
             }
 
             model.addAttribute("yearlyEmotionMap", yearlyEmotionMap);
@@ -132,16 +120,23 @@ public class CalendarController {
 
     @GetMapping("/api/calendar/yearly/{year}")
     @ResponseBody
-    public Map<String, Object> getYearlyEmotionData(@PathVariable int year, HttpSession session) {
-        User user = (User) session.getAttribute("user");
+    public Map<String, Object> getYearlyEmotionData(@PathVariable int year) {
+        Map<String, Object> response = new HashMap<>();
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated() || auth.getPrincipal().equals("anonymousUser")) {
+            response.put("error", "사용자 인증 필요");
+            return response;
+        }
+
+        String email = auth.getName();
+        User user = userService.findByEmail(email);
         if (user == null) {
-            System.out.println("❗ 세션에 사용자 없음");
-            throw new RuntimeException("사용자 없음");
+            response.put("error", "사용자 정보 없음");
+            return response;
         }
 
         Long userId = user.getId();
-
-        // 연간 데이터에도 diaryId를 포함하도록 쿼리 수정 필요
         List<Object[]> results = diaryEmotionRepository.findYearlyEmotionsWithDiaryId(userId, String.valueOf(year));
 
         Map<String, Object> emotionMap = new HashMap<>();
@@ -150,10 +145,8 @@ public class CalendarController {
             LocalDate date = (LocalDate) row[1];
             String emojiPath = (String) row[2];
 
-            String fileName = emojiPath;
-            if (emojiPath.contains("/")) {
-                fileName = emojiPath.substring(emojiPath.lastIndexOf("/") + 1);
-            }
+            String fileName = emojiPath.contains("/") ?
+                    emojiPath.substring(emojiPath.lastIndexOf("/") + 1) : emojiPath;
 
             Map<String, Object> emotionData = new HashMap<>();
             emotionData.put("emoji", fileName);
@@ -164,4 +157,41 @@ public class CalendarController {
 
         return emotionMap;
     }
+    @GetMapping("/api/diary/{diaryId}")
+    @ResponseBody
+    public ResponseEntity<?> getDiaryDetail(@PathVariable Long diaryId) {
+        Optional<Diary> diaryOpt = diaryRepository.findById(diaryId);
+        if (diaryOpt.isEmpty()) {
+            return ResponseEntity.status(404).body("일기를 찾을 수 없습니다.");
+        }
+
+        Diary diary = diaryOpt.get();
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("title", diary.getTitle());
+        result.put("content", diary.getContent());
+
+        //  1. 사진 URL 목록
+        List<String> photoUrls = diary.getPhotos().stream()
+                .map(DiaryPhoto::getPhotoUrl)
+                .toList();
+        result.put("photos", photoUrls);
+
+        // 2. 태그용 문장 감정 키워드 추출 (예시: 감정명 + 문장 일부)
+        List<String> tags = diary.getSentenceEmotions().stream()
+                .map(se -> {
+                    String sentence = se.getSentenceText();
+                    String shortSentence = sentence.length() > 10 ? sentence.substring(0, 10) + "..." : sentence;
+                    return se.getEmotion().getEmotionName() + ": " + shortSentence;
+                })
+                .toList();
+        result.put("tags", tags);
+
+        //  3. 오디오 필드 (임시 null 반환 중)
+        // result.put("audioUrl", diary.getAudioUrl());
+
+        return ResponseEntity.ok(result);
+    }
+
+
 }

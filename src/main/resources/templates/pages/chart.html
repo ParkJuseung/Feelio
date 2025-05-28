@@ -15,8 +15,6 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
 
-
-
         .status-bar {
             display: flex;
             justify-content: space-between;
@@ -230,123 +228,6 @@
             margin-top: 20px;
             width: 100%;
         }
-/*
-        .menu-bar {
-            display: flex;
-            background: white;
-            border-radius: 0 0 32px 32px;
-            bottom: 70px;
-            left: 0;
-            right: 0;
-            height: 65px;
-            !*
-            padding: 15px 0 25px;
-            *!
-            border-top: 1px solid #f0f0f0;
-            justify-content: space-around;
-            align-items: center;
-            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.06);
-        }*/
-
-        /*.menu-bar {
-            bottom: 70px;
-            left: 0;
-            right: 0;
-            height: 65px;
-            background-color: white;
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.06);
-            border-top: 1px solid #f0f0f0;
-        }
-
-        .menu-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: #aaa;
-            font-size: 11px;
-            font-weight: 500;
-        }
-*/
-/*
-        .menu-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            cursor: pointer;
-            border-radius: 12px;
-            transition: all 0.2s;
-        }
-        .menu-item.active {
-            background: #667eea;
-            color: white;
-        }
-
-        .menu-icon {
-            font-size: 20px;
-            margin-bottom: 4px;
-        }
-        */
-
-
-        .menu-item:hover {
-            background: #f0f4ff;
-        }
-
-
-
-        .menu-item div:last-child {
-            font-size: 12px;
-            font-weight: 500;
-        }
-
-        .diary-image {
-            width: 50px;
-            height: 50px;
-            border-radius: 8px;
-            object-fit: cover;
-        }
-
-        .no-data {
-            text-align: center;
-            color: #666;
-            padding: 40px 20px;
-        }
-
-
-/*
-        .menu-item.active {
-            color: #007BFF;
-        }
-
-        .menu-icon {
-            font-size: 22px;
-            margin-bottom: 4px;
-        }
-
-        .new-diary-button {
-            bottom: 140px;
-            left: 30px;
-            width: 50px;
-            height: 50px;
-            border-radius: 25px;
-            background: linear-gradient(135deg, #007BFF, #00a1ff);
-            color: white;
-            font-size: 24px;
-            border: none;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.4);
-        }
-
-        .new-diary-button:active {
-            transform: scale(0.92);
-        }*/
-
-
 
         .menu-bar {
             position: absolute;
@@ -405,6 +286,27 @@
             transform: scale(0.92);
         }
 
+        .menu-item:hover {
+            background: #f0f4ff;
+        }
+
+        .menu-item div:last-child {
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .diary-image {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        .no-data {
+            text-align: center;
+            color: #666;
+            padding: 40px 20px;
+        }
     </style>
 </head>
 <body>
@@ -430,7 +332,6 @@
 
         <div class="scrollable-content">
             <!-- 주간/월간 토글 버튼 -->
-
             <div class="toggle-buttons">
                 <button id="weeklyBtn" class="active">주간</button>
                 <button id="monthlyBtn">월간</button>
@@ -527,6 +428,8 @@
     let currentMonthOffset = 0;
     let currentPeriod = 'WEEKLY';
     let emotionChart = null;
+    // 날짜 매핑을 위한 전역 변수 추가
+    let dateMapping = [];
 
     function initChart() {
         const ctx = document.getElementById('emotionChart').getContext('2d');
@@ -595,8 +498,11 @@
                     const points = emotionChart.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
                     if (points.length) {
                         const index = points[0].index;
-                        const date = emotionChart.data.labels[index];
-                        openDiaryModal(date);
+                        // dateMapping 배열에서 실제 날짜를 가져옴
+                        const actualDate = dateMapping[index];
+                        if (actualDate) {
+                            openDiaryModal(actualDate);
+                        }
                     }
                 }
             }
@@ -633,14 +539,18 @@
         const formatLabel = (d) => `${d.getMonth() + 1}/${d.getDate()}`;
 
         document.getElementById('chartTitle').innerHTML = `
-    <span class="nav-arrow" id="prevBtn">◀</span>
-    📅 ${formatLabel(start)} - ${formatLabel(end)} 감정 변화
-    <span class="nav-arrow" id="nextBtn">▶</span>
-  `;
+            <span class="nav-arrow" id="prevBtn">◀</span>
+            📅 ${formatLabel(start)} - ${formatLabel(end)} 감정 변화
+            <span class="nav-arrow" id="nextBtn">▶</span>
+        `;
 
         fetch(`/api/emotion-trend?userId=${userId}&period=WEEKLY&startDate=${weekDates[0]}`)
             .then(res => res.json())
             .then(data => {
+                // 날짜 매핑 배열 업데이트 - 원본 날짜 저장
+                dateMapping = data.labels.slice();
+
+                // 차트 레이블은 표시용으로 변환
                 emotionChart.data.labels = data.labels.map(label => {
                     const parts = label.split("-");
                     return `${parseInt(parts[1])}/${parseInt(parts[2])}`;
@@ -658,16 +568,19 @@
         const target = new Date(today.getFullYear(), today.getMonth() + currentMonthOffset, 1);
 
         document.getElementById('chartTitle').innerHTML = `
-    <span class="nav-arrow" id="prevBtn">◀</span>
-    📅 최근 3개월 감정 트렌드
-    <span class="nav-arrow" id="nextBtn">▶</span>
-  `;
+            <span class="nav-arrow" id="prevBtn">◀</span>
+            📅 최근 3개월 감정 트렌드
+            <span class="nav-arrow" id="nextBtn">▶</span>
+        `;
 
         const startDate = `${target.getFullYear()}-${String(target.getMonth() + 1).padStart(2, '0')}-01`;
 
         fetch(`/api/emotion-trend?userId=${userId}&period=MONTHLY&startDate=${startDate}`)
             .then(res => res.json())
             .then(data => {
+                // 월간 차트에서는 날짜 매핑 초기화
+                dateMapping = [];
+
                 emotionChart.data.labels = data.labels.map(ym => `${parseInt(ym.split("-")[1])}월`);
                 emotionChart.data.datasets[0].data = data.values.map(v => Math.round(v));
                 emotionChart.options.scales.y.max = undefined;
@@ -695,7 +608,13 @@
         };
     }
 
+    // 모달 내 날짜 네비게이션을 위한 현재 날짜 저장
+    let currentModalDate = null;
+
     function openDiaryModal(date) {
+        // 현재 모달에서 보고 있는 날짜 저장
+        currentModalDate = date;
+
         fetch(`/api/diary-detail?userId=${userId}&date=${date}`)
             .then(res => res.ok ? res.json() : Promise.reject())
             .then(diary => {
@@ -725,8 +644,19 @@
             });
     }
 
+    function moveDiaryDate(direction) {
+        if (!currentModalDate) return;
+
+        const currentDate = new Date(currentModalDate);
+        currentDate.setDate(currentDate.getDate() + direction);
+        const newDate = formatDate(currentDate);
+
+        openDiaryModal(newDate);
+    }
+
     function closeModal() {
         document.getElementById('diaryModal').style.display = 'none';
+        currentModalDate = null;
     }
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -752,13 +682,5 @@
     });
 </script>
 
-
-
-
-
-
-
 </body>
 </html>
-
-
