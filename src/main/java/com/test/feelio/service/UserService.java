@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -27,6 +28,7 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
+    @Transactional
     public void registerUser(UserRegisterDto registerDto) {
         User user = new User();
         user.setEmail(registerDto.getEmail());
@@ -49,10 +51,9 @@ public class UserService {
 
     /**
      * 사용자 로그인을 처리합니다.
-     * @param loginDto 로그인 정보
-     * @param session 세션 객체
      * @return 로그인 성공 여부
      */
+    /*
     public boolean loginUser(UserLoginDto loginDto, HttpSession session) {
         logger.info("로그인 시도: {}", loginDto.getEmail());
 
@@ -94,5 +95,46 @@ public class UserService {
         return userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다: ID=" + id));
     }
+
+    @Transactional
+    public void updateProfile(Long userId, String newNickname, String currentPassword, String newPassword) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+
+        // 닉네임 변경
+        if (newNickname != null && !newNickname.isBlank()) {
+            user.setNickname(newNickname);
+        }
+
+        // 비밀번호 변경 (현재 비밀번호 & 새 비밀번호 둘 다 있는 경우)
+        if (currentPassword != null && !currentPassword.isBlank()
+                && newPassword != null && !newPassword.isBlank()) {
+
+            if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+                throw new IllegalArgumentException("현재 비밀번호가 일치하지 않습니다.");
+            }
+
+            String encodedNewPassword = passwordEncoder.encode(newPassword);
+            user.setPassword(encodedNewPassword);
+        }
+
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public void updateNickname(Long userId, String newNickname) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+
+        if (newNickname != null && !newNickname.isBlank()) {
+            user.setNickname(newNickname);
+            userRepository.save(user);
+        }
+    }
+
+    public void updateUser(User user) {
+        userRepository.save(user);
+    }
+
 
 }
