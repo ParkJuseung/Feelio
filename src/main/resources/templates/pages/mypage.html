@@ -22,6 +22,7 @@ padding: 16px;
 background-color: #f0f6ff;
 height: 100%;
 overflow-y: auto;
+  cursor: pointer;
 }
 
 .profile-card, .menu-list {
@@ -101,6 +102,7 @@ font-size: 11px;
 font-weight: 500;
 transition: all 0.3s ease;
 padding: 8px 0;
+  cursor: pointer;
 }
 
 .menu-item.active {
@@ -147,6 +149,7 @@ height: calc(100% - 65px);
 overflow-y: auto;
 }
 </style>
+  <title>Feelio</title>
 </head>
 <body>
 <!-- 프레임 컨테이너 - 항상 최상위에 위치 -->
@@ -160,7 +163,7 @@ overflow-y: auto;
   <!-- 노치 및 상태바 -->
   <div class="notch"></div>
   <div class="status-bar">
-    <div class="time">9:41</div>
+    <div class="time">--:--</div>
     <div class="status-icons">
       <div class="signal">
         <div></div>
@@ -189,10 +192,10 @@ overflow-y: auto;
       </div>
 
       <div class="menu-list">
-        <div class="menu-item">
+        <div class="menu-item" >
           <span>즐겨찾기</span><span class="arrow-right"></span>
         </div>
-        <div class="menu-item">
+        <div class="menu-item" onclick="location.href='/mypage/gallery'">
           <span>갤러리</span><span class="arrow-right"></span>
         </div>
         <div class="menu-item">
@@ -244,8 +247,22 @@ overflow-y: auto;
   </div>
 
 
-
-
 </div>
+<script>
+  function updateTime() {
+    const now = new Date();
+    const hours = now.getHours();
+    const minutes = now.getMinutes().toString().padStart(2, '0');
+    const formattedTime = `${hours}:${minutes}`;
+    document.querySelector('.status-bar .time').textContent = formattedTime;
+  }
+
+  // 페이지 로드 시 한 번 실행
+  updateTime();
+
+  // 이후 1분마다 갱신
+  setInterval(updateTime, 60000);
+</script>
+
 </body>
 </html>
