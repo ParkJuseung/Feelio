@@ -273,6 +273,49 @@
         color: #666;
         margin-top: 4px;
     }
+    /* AI 결과 페이지 헤더 수정 CSS */
+
+
+
+
+
+    /* 앱 컨텐츠 영역 수정 */
+    .app-content {
+        flex: 1;
+        overflow-y: auto;
+        padding: 15px;
+        position: relative;
+        margin-top: 5px; /* 헤더와의 간격 추가 */
+        max-height: calc(100% - 70px); /* 헤더 높이 고려 */
+    }
+
+    /* 스크롤바 스타일 미세 조정 */
+    .app-content::-webkit-scrollbar {
+        width: 5px;
+    }
+
+    /* 하단 여백 추가 */
+    .app-content::after {
+        content: '';
+        display: block;
+        height: 100px;
+        width: 100%;
+    }
+
+    /* 상태바 위치 조정 */
+    .status-bar {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 44px;
+        z-index: 15; /* 더 높은 z-index */
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 5px 24px;
+    }
+
 </style>
 <body>
 <!-- ai-result.html -->
@@ -280,12 +323,24 @@
 <!--<div th:replace="~{fragments/header :: header}"></div>-->
 
 <div class="phone-container">
+    <div class="notch"></div>
+    <div class="status-bar">
+        <div class="time">9:41</div>
+        <div class="status-icons">
+            <div class="signal">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+        </div>
+    </div>
+
     <div class="app-container">
-        <div class="app-header">
-            <a href="javascript:history.back()" class="back-button">
-                <i class="fas fa-arrow-left"></i>
-            </a>
-            <h1>감정 분석 결과</h1>
+        <!-- 수정해야 할 헤더 구조 (home.html과 동일한 클래스 구조) -->
+        <div class="app-header header-layout-center">
+            <div class="app-title">감정 분석 결과</div>
+            <div class="app-date">AI 분석 결과</div>
         </div>
 
         <div class="app-content">
@@ -332,15 +387,6 @@
                             <div class="activity-details">
                                 <h3>가벼운 산책</h3>
                                 <p>신선한 공기를 마시며 생각을 정리하는데 도움이 됩니다.</p>
-                            </div>
-                        </div>
-                        <div class="activity-card">
-                            <div class="activity-icon">
-                                <i class="fas fa-music"></i>
-                            </div>
-                            <div class="activity-details">
-                                <h3>좋아하는 음악 듣기</h3>
-                                <p>마음을 편안하게 하고 감정을 표현하는데 도움이 됩니다.</p>
                             </div>
                         </div>
                     </div>

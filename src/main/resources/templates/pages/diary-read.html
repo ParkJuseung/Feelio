@@ -405,14 +405,26 @@
 <body>
 
 <div class="phone-container">
+  <!-- 노치 및 상태바 -->
+  <div class="notch"></div>
+  <div class="status-bar">
+    <div class="time">9:41</div>
+    <div class="status-icons">
+      <div class="signal">
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+      </div>
+    </div>
+  </div>
+
+
   <div class="app-container">
     <!-- 기존 app-header 부분을 이것으로 교체 -->
-    <div class="app-header">
-      <a href="javascript:history.back()" class="back-button">
-        <i data-lucide="arrow-left"></i>
-      </a>
-      <h1>일기 보기</h1>
-      <div class="header-spacer"></div> <!-- 오른쪽 공간 확보용 -->
+    <!-- 수정해야 할 헤더 구조 (home.html과 동일한 클래스 구조) -->
+    <div class="app-header header-layout-center">
+      <div class="app-title">일기 보기</div>
     </div>
 
     <div class="app-content">
