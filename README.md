@@ -88,24 +88,24 @@ Feelio는 매일의 감정을 기록하고, AI를 통해 분석하며, 자신을
 
 ## 서비스 구조도 🔍
 <img width="750" alt="image" src="https://user-images.githubusercontent.com/60915285/188927329-3cf2a1a5-1e58-4896-9163-2049ab7cfa5f.png">
+
 <br><br>
 
 ## 주요 기능 📚
 
 ### 1. 소셜로그인
-<img width="700" src="https://user-images.githubusercontent.com/60915285/189544140-0e26ce69-2191-4abf-a5df-54f915a86d72.gif">
-네이버, 구글, 카카오 소셜 로그인을 제공합니다.
+<img width="500" src="https://github.com/user-attachments/assets/0ae09287-7e50-45d3-a7f2-b4568a439fc4"><br>
+로컬, 네이버, 구글, 카카오 소셜 로그인을 제공합니다.
 
 <br><br>
         
-### 2. 포스팅
-<img width="700" src="https://user-images.githubusercontent.com/60915285/223932054-64bbdda6-03de-4ba4-a044-32875e6ba8fa.gif">
-추천하고 싶은 여행 장소나 맛집을 공유할 수 있습니다. <br>
-사용자들에게 Google API를 통해 더 정확한 위치 정보를 제공하며, 해시태그나 사진을 통해 정보를 더 효과적으로 전달할 수 있습니다.
+### 2. 홈화면
+<img width="300" src="https://github.com/user-attachments/assets/0a4ec1f7-51ca-42d4-8f22-b5ab895e904a"><br>
+사용자가 작성한 일기가 표시됩니다.
 
 <br><br>
 
-### 3. 여행경로
+### 3. 일기 작성 및 분석
 <img width="700" src="https://user-images.githubusercontent.com/60915285/189544287-de42403c-4c30-48b5-93bf-dbb20486d092.gif">
 추천하고싶은 여행 경로를 사용자들에게 추천할 수 있습니다. <br>
 GooGle API를 통해 정확한 위치를 제공하며 Pin과 경로 표시를 통해 효율적인 여행 경로를 확인할 수 있습니다.
@@ -113,19 +113,12 @@ GooGle API를 통해 정확한 위치를 제공하며 Pin과 경로 표시를 �
 <br><br>
 
 ### 4. 마이페이지
-<img width="700" src="https://user-images.githubusercontent.com/60915285/189544282-23bd0402-7276-4a07-8508-fc2be2691ec6.gif">
-자세한 나의 정보를 표시하는 페이지입니다.<br>
-회원 정보 수정, 탈퇴가 가능하며 자기소개, 내가 쓴 글, 방명록 등을 확인할 수있습니다. 
-
-<br><br>
-
-### 5. 채팅
 <img width="700" src="https://user-images.githubusercontent.com/60915285/189544280-2bf99a41-5bda-40bd-b92e-63248777c0c1.gif">
 비슷한 취미나 성향을 가진 사람끼리 테스트를 할 수 있습니다.<br>
 
 <br><br>
 
-### 6. 관리자
+### 5. AI채팅
 <img width="700" src="https://user-images.githubusercontent.com/60915285/189544288-b9496177-6e94-4ed5-a95b-9f2f0904e9c1.gif">
 방의 모든 참가자들은 채팅 기능을 사용할 수 있습니다.<br>
 여기에는 비속어 필터링이 존재하여, 비속어가 섞인 채팅을 보내게 되면 '[삭제된 메세지]' 라고 대체되어 보내집니다.
