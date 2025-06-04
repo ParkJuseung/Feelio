@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>감정 통계</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" th:href="@{/css/base.css}">
+    <link rel="stylesheet" th:href="@{/css/phone-style.css}">
+    <link rel="stylesheet" th:href="@{/css/phone-frame.css}">
+    <link rel="stylesheet" th:href="@{/css/scrollbar-style.css}">
+    <link rel="stylesheet" th:href="@{/css/app-content.css}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 25px 5px;
+            color: #000;
+            font-size: 16px;
+            font-weight: 600;
+            background: #fff;
+            border-radius: 32px 32px 0 0;
+        }
+
+        .signal {
+            display: flex;
+            gap: 2px;
+        }
+
+        .signal div {
+            width: 4px;
+            height: 12px;
+            background: #000;
+            border-radius: 1px;
+        }
+
+        .signal div:nth-child(2) { height: 8px; }
+        .signal div:nth-child(3) { height: 6px; }
+        .signal div:nth-child(4) { height: 4px; }
+
+        .scrollable-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .toggle-buttons {
+            display: flex;
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 20px;
+        }
+
+        .toggle-buttons button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .toggle-buttons button.active {
+            background: #667eea;
+            color: white;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border: 1px solid #e0e6ff;
+        }
+
+        .chart-container h3 {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            color: #4a5568;
+            font-size: 16px;
+        }
+
+        .nav-arrow {
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: background 0.2s;
+            user-select: none;
+        }
+
+        .nav-arrow:hover {
+            background: #f0f4ff;
+        }
+
+        .chart-wrapper {
+            height: 300px;
+            position: relative;
+        }
+
+        .loading, .error-message {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #666;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .spinner {
+            width: 30px;
+            height: 30px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .mood-trigger-section {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border: 1px solid #e0e6ff;
+            padding-bottom: 100px;
+        }
+
+        .trigger-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            color: #4a5568;
+            font-weight: 600;
+        }
+
+        .trigger-item {
+            background: #f8f9ff;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .trigger-emotion {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .trigger-keywords {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .keyword-tag {
+            background: #667eea;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background: white;
+            margin: 10% auto;
+            padding: 20px;
+            width: 85%;
+            max-width: 500px;
+            border-radius: 16px;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .modal-nav-btn {
+            background: #f0f4ff;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            color: #667eea;
+        }
+
+        .modal-close-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        .menu-bar {
+            position: absolute;
+            bottom: 70px;
+            left: 0;
+            right: 0;
+            height: 65px;
+            background-color: white;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.06);
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .menu-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #aaa;
+            font-size: 11px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            padding: 8px 0;
+        }
+
+        .menu-item.active {
+            color: #007BFF;
+        }
+
+        .menu-icon {
+            font-size: 22px;
+            margin-bottom: 4px;
+        }
+
+        .new-diary-button {
+            position: absolute;
+            bottom: 140px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            border-radius: 25px;
+            background: linear-gradient(135deg, #007BFF, #00a1ff);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.4);
+            z-index: 10;
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        .new-diary-button:active {
+            transform: scale(0.92);
+        }
+
+        .menu-item:hover {
+            background: #f0f4ff;
+        }
+
+        .menu-item div:last-child {
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .diary-image {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        .no-data {
+            text-align: center;
+            color: #666;
+            padding: 40px 20px;
+        }
+    </style>
+</head>
+<body>
+<div class="phone-container">
+    <div class="notch"></div>
+    <div class="status-bar">
+        <div class="time">9:41</div>
+        <div class="status-icons">
+            <div class="signal">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="app-container">
+        <div class="app-header">
+            <div class="app-title">감정 통계</div>
+            <div class="app-date">2025년 5월</div>
+        </div>
+
+        <div class="scrollable-content">
+            <!-- 주간/월간 토글 버튼 -->
+            <div class="toggle-buttons">
+                <button id="weeklyBtn" class="active">주간</button>
+                <button id="monthlyBtn">월간</button>
+            </div>
+
+            <!-- 차트 영역 -->
+            <div class="chart-container">
+                <h3 id="chartTitle">
+                    <span class="nav-arrow" id="prevBtn">◀</span>
+                    <span id="chartLabel">📅 주간 감정 변화</span>
+                    <span class="nav-arrow" id="nextBtn">▶</span>
+                </h3>
+
+                <div class="chart-wrapper" id="chartWrapper">
+                    <canvas id="emotionChart"></canvas>
+                </div>
+            </div>
+
+            <!-- 감정 트리거 섹션 -->
+            <div class="mood-trigger-section" id="triggerSection">
+                <div class="trigger-header">
+                    🎯 감정 트리거 분석
+                </div>
+                <div class="trigger-item">
+                    <div class="trigger-emotion">😊 긍정적 감정</div>
+                    <div>주요 키워드:</div>
+                    <div class="trigger-keywords">
+                        <span class="keyword-tag">성취</span>
+                        <span class="keyword-tag">친구</span>
+                        <span class="keyword-tag">휴식</span>
+                        <span class="keyword-tag">운동</span>
+                    </div>
+                </div>
+                <div class="trigger-item">
+                    <div class="trigger-emotion">😰 스트레스 감정</div>
+                    <div>주요 키워드:</div>
+                    <div class="trigger-keywords">
+                        <span class="keyword-tag">업무</span>
+                        <span class="keyword-tag">시험</span>
+                        <span class="keyword-tag">마감</span>
+                        <span class="keyword-tag">피로</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 메뉴 바 및 새 일기 버튼 -->
+        <button class="new-diary-button">+</button>
+        <!-- 메뉴 바 -->
+        <div class="menu-bar">
+            <div class="menu-item">
+                <div class="menu-icon">💬</div>
+                <div>채팅</div>
+            </div>
+            <div class="menu-item" onclick="location.href='/calendar'">
+                <div class="menu-icon">📅</div>
+                <div>달력</div>
+            </div>
+            <div class="menu-item">
+                <div class="menu-icon">📖</div>
+                <div>일기</div>
+            </div>
+            <div class="menu-item active">
+                <div class="menu-icon">📊</div>
+                <div>통계</div>
+            </div>
+            <div class="menu-item">
+                <div class="menu-icon">⚙️</div>
+                <div>설정</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 일기 모달 -->
+<div id="diaryModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <button class="modal-nav-btn" onclick="moveDiaryDate(-1)">←</button>
+            <h3 id="diaryDate" style="color:#667eea; font-size:16px; margin:0;"></h3>
+            <button class="modal-nav-btn" onclick="moveDiaryDate(1)">→</button>
+        </div>
+        <h4 id="diaryTitle" style="margin-bottom:8px; font-weight:bold;"></h4>
+        <p id="diaryContent" style="white-space:pre-wrap; line-height:1.6;"></p>
+        <div id="diaryEmotion" style="margin-top:10px; font-size:16px;"></div>
+        <div id="diaryTags" style="margin-top:10px; font-size:13px; color:#666;"></div>
+        <div id="diaryImages" style="margin-top:10px; display:flex; gap:6px; flex-wrap:wrap;"></div>
+        <button class="modal-close-btn" onclick="closeModal()">닫기</button>
+    </div>
+</div>
+
+<script>
+    const userId = 1;
+    let currentWeekOffset = 0;
+    let currentMonthOffset = 0;
+    let currentPeriod = 'WEEKLY';
+    let emotionChart = null;
+    // 날짜 매핑을 위한 전역 변수 추가
+    let dateMapping = [];
+
+    function initChart() {
+        const ctx = document.getElementById('emotionChart').getContext('2d');
+        emotionChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: '감정 점수',
+                    data: [],
+                    backgroundColor: function(context) {
+                        const gradient = context.chart.ctx.createLinearGradient(0, 0, 0, 300);
+                        gradient.addColorStop(0, '#667eea');
+                        gradient.addColorStop(1, '#764ba2');
+                        return gradient;
+                    },
+                    borderRadius: 8,
+                    borderSkipped: false,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                        titleColor: '#4a5568',
+                        bodyColor: '#4a5568',
+                        borderColor: '#e0e6ff',
+                        borderWidth: 1,
+                        cornerRadius: 8,
+                        displayColors: false,
+                        callbacks: {
+                            title: (context) => context[0].label,
+                            label: (context) => currentPeriod === 'WEEKLY'
+                                ? `감정 점수: ${context.parsed.y}%`
+                                : `감정 점수 합계: ${context.parsed.y}`
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: currentPeriod === 'WEEKLY' ? 100 : undefined,
+                        ticks: {
+                            stepSize: currentPeriod === 'WEEKLY' ? 25 : undefined,
+                            color: '#7c8ba1',
+                            font: { family: 'Noto Sans KR' }
+                        },
+                        grid: {
+                            color: 'rgba(200,200,200,0.2)',
+                            drawBorder: false
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: '#7c8ba1',
+                            font: { family: 'Noto Sans KR' }
+                        },
+                        grid: { display: false }
+                    }
+                },
+                onClick: (evt) => {
+                    if (currentPeriod !== 'WEEKLY') return;
+                    const points = emotionChart.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
+                    if (points.length) {
+                        const index = points[0].index;
+                        // dateMapping 배열에서 실제 날짜를 가져옴
+                        const actualDate = dateMapping[index];
+                        if (actualDate) {
+                            openDiaryModal(actualDate);
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    function formatDate(date) {
+        const yyyy = date.getFullYear();
+        const mm = String(date.getMonth() + 1).padStart(2, '0');
+        const dd = String(date.getDate()).padStart(2, '0');
+        return `${yyyy}-${mm}-${dd}`;
+    }
+
+    function getWeekDates(offset = 0) {
+        const today = new Date();
+        const monday = new Date(today);
+        monday.setDate(monday.getDate() - monday.getDay() + 1 + offset * 7);
+        const weekDates = [];
+        for (let i = 0; i < 7; i++) {
+            const day = new Date(monday);
+            day.setDate(monday.getDate() + i);
+            weekDates.push(formatDate(day));
+        }
+        return weekDates;
+    }
+
+    function loadWeeklyChart(offset = 0) {
+        currentWeekOffset = offset;
+        currentPeriod = 'WEEKLY';
+
+        const weekDates = getWeekDates(currentWeekOffset);
+        const start = new Date(weekDates[0]);
+        const end = new Date(weekDates[6]);
+        const formatLabel = (d) => `${d.getMonth() + 1}/${d.getDate()}`;
+
+        document.getElementById('chartTitle').innerHTML = `
+            <span class="nav-arrow" id="prevBtn">◀</span>
+            📅 ${formatLabel(start)} - ${formatLabel(end)} 감정 변화
+            <span class="nav-arrow" id="nextBtn">▶</span>
+        `;
+
+        fetch(`/api/emotion-trend?userId=${userId}&period=WEEKLY&startDate=${weekDates[0]}`)
+            .then(res => res.json())
+            .then(data => {
+                // 날짜 매핑 배열 업데이트 - 원본 날짜 저장
+                dateMapping = data.labels.slice();
+
+                // 차트 레이블은 표시용으로 변환
+                emotionChart.data.labels = data.labels.map(label => {
+                    const parts = label.split("-");
+                    return `${parseInt(parts[1])}/${parseInt(parts[2])}`;
+                });
+                emotionChart.data.datasets[0].data = data.values.map(v => Math.round(v));
+                emotionChart.options.scales.y.max = 100;
+                emotionChart.update();
+                setupNavigationListeners();
+            });
+    }
+
+    function loadMonthlyChart() {
+        currentPeriod = 'MONTHLY';
+        const today = new Date();
+        const target = new Date(today.getFullYear(), today.getMonth() + currentMonthOffset, 1);
+
+        document.getElementById('chartTitle').innerHTML = `
+            <span class="nav-arrow" id="prevBtn">◀</span>
+            📅 최근 3개월 감정 트렌드
+            <span class="nav-arrow" id="nextBtn">▶</span>
+        `;
+
+        const startDate = `${target.getFullYear()}-${String(target.getMonth() + 1).padStart(2, '0')}-01`;
+
+        fetch(`/api/emotion-trend?userId=${userId}&period=MONTHLY&startDate=${startDate}`)
+            .then(res => res.json())
+            .then(data => {
+                // 월간 차트에서는 날짜 매핑 초기화
+                dateMapping = [];
+
+                emotionChart.data.labels = data.labels.map(ym => `${parseInt(ym.split("-")[1])}월`);
+                emotionChart.data.datasets[0].data = data.values.map(v => Math.round(v));
+                emotionChart.options.scales.y.max = undefined;
+                emotionChart.update();
+                setupNavigationListeners();
+            });
+    }
+
+    function setupNavigationListeners() {
+        document.getElementById('prevBtn').onclick = () => {
+            if (currentPeriod === 'WEEKLY') {
+                loadWeeklyChart(currentWeekOffset - 1);
+            } else {
+                currentMonthOffset--;
+                loadMonthlyChart();
+            }
+        };
+        document.getElementById('nextBtn').onclick = () => {
+            if (currentPeriod === 'WEEKLY') {
+                loadWeeklyChart(currentWeekOffset + 1);
+            } else {
+                currentMonthOffset++;
+                loadMonthlyChart();
+            }
+        };
+    }
+
+    // 모달 내 날짜 네비게이션을 위한 현재 날짜 저장
+    let currentModalDate = null;
+
+    function openDiaryModal(date) {
+        // 현재 모달에서 보고 있는 날짜 저장
+        currentModalDate = date;
+
+        fetch(`/api/diary-detail?userId=${userId}&date=${date}`)
+            .then(res => res.ok ? res.json() : Promise.reject())
+            .then(diary => {
+                document.getElementById('diaryDate').textContent = date;
+                document.getElementById('diaryTitle').textContent = diary.title || '일기 없음';
+                document.getElementById('diaryContent').textContent = diary.content || '이 날짜에는 작성된 일기가 없습니다.';
+                document.getElementById('diaryEmotion').textContent = diary.emotion || '';
+                document.getElementById('diaryTags').textContent = diary.tags?.join(', ') || '';
+                const imagesDiv = document.getElementById('diaryImages');
+                imagesDiv.innerHTML = '';
+                (diary.photos || []).forEach(src => {
+                    const img = document.createElement('img');
+                    img.src = src;
+                    img.classList.add('diary-image');
+                    imagesDiv.appendChild(img);
+                });
+                document.getElementById('diaryModal').style.display = 'block';
+            })
+            .catch(() => {
+                document.getElementById('diaryDate').textContent = date;
+                document.getElementById('diaryTitle').textContent = '일기 없음';
+                document.getElementById('diaryContent').textContent = '이 날짜에는 작성된 일기가 없습니다.';
+                document.getElementById('diaryEmotion').textContent = '';
+                document.getElementById('diaryTags').textContent = '';
+                document.getElementById('diaryImages').innerHTML = '';
+                document.getElementById('diaryModal').style.display = 'block';
+            });
+    }
+
+    function moveDiaryDate(direction) {
+        if (!currentModalDate) return;
+
+        const currentDate = new Date(currentModalDate);
+        currentDate.setDate(currentDate.getDate() + direction);
+        const newDate = formatDate(currentDate);
+
+        openDiaryModal(newDate);
+    }
+
+    function closeModal() {
+        document.getElementById('diaryModal').style.display = 'none';
+        currentModalDate = null;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        initChart();
+        loadWeeklyChart();
+
+        document.getElementById('weeklyBtn').onclick = () => {
+            document.getElementById('weeklyBtn').classList.add('active');
+            document.getElementById('monthlyBtn').classList.remove('active');
+            loadWeeklyChart(currentWeekOffset);
+        };
+
+        document.getElementById('monthlyBtn').onclick = () => {
+            document.getElementById('monthlyBtn').classList.add('active');
+            document.getElementById('weeklyBtn').classList.remove('active');
+            loadMonthlyChart();
+        };
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('diaryModal');
+            if (event.target === modal) closeModal();
+        };
+    });
+</script>
+
+</body>
+</html>
