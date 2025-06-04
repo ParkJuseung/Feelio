@@ -100,7 +100,7 @@ Feelio는 매일의 감정을 기록하고, AI를 통해 분석하며, 자신을
 <br><br>
         
 ### 2. 홈화면
-<img width="300" src="https://github.com/user-attachments/assets/0a4ec1f7-51ca-42d4-8f22-b5ab895e904a"><br>
+<img width="250" src="https://github.com/user-attachments/assets/0a4ec1f7-51ca-42d4-8f22-b5ab895e904a"><br>
 사용자가 작성한 일기가 표시됩니다.
 
 <br><br>
