@@ -109,7 +109,9 @@ Feelio는 매일의 감정을 기록하고, AI를 통해 분석하며, 자신을
 
 ### 3. 일기 작성 및 분석
 <img width="250" src="https://github.com/user-attachments/assets/360a41d8-13b8-44c1-ac54-188424043e70">
+<img width="240" src="https://github.com/user-attachments/assets/fd1592ed-ed81-4ac7-9974-d8808ac11b61">
 <img width="513" src="https://github.com/user-attachments/assets/9e3b517f-9b83-4152-b9cd-a12a3b55b0dc"><br>
+
 
 
 추천하고싶은 여행 경로를 사용자들에게 추천할 수 있습니다. <br>
