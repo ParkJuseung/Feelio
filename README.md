@@ -1,8 +1,5 @@
-<div align="center">
-  <br />
-  <img src="https://github.com/user-attachments/assets/825b19ba-1a1a-4793-acd3-8e0b312d6c7f" width="100%" />
-  <br />
-</div>
+
+  <img src="https://github.com/user-attachments/assets/825b19ba-1a1a-4793-acd3-8e0b312d6c7f"/>
 
 <div align="center">
  <h3><b>Feelio</b></h3>
