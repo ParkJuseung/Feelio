@@ -118,7 +118,13 @@ GooGle API를 통해 정확한 위치를 제공하며 Pin과 경로 표시를 �
 
 <br><br>
 
-### 5. AI채팅
+### 5. 차트
+<img width="700" src="https://user-images.githubusercontent.com/60915285/189544280-2bf99a41-5bda-40bd-b92e-63248777c0c1.gif">
+비슷한 취미나 성향을 가진 사람끼리 테스트를 할 수 있습니다.<br>
+
+<br><br>
+
+### 6. AI채팅
 <img width="700" src="https://user-images.githubusercontent.com/60915285/189544288-b9496177-6e94-4ed5-a95b-9f2f0904e9c1.gif">
 방의 모든 참가자들은 채팅 기능을 사용할 수 있습니다.<br>
 여기에는 비속어 필터링이 존재하여, 비속어가 섞인 채팅을 보내게 되면 '[삭제된 메세지]' 라고 대체되어 보내집니다.
