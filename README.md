@@ -121,7 +121,7 @@ GooGle API를 통해 정확한 위치를 제공하며 Pin과 경로 표시를 �
 
 ### 4. 차트 / 캘린더
 <img width="240" src="https://github.com/user-attachments/assets/9102eb30-02ae-4b00-8e24-5747a8b29f01">
-<img width="240" src="https://github.com/user-attachments/assets/71459d7a-05b2-480a-83f1-179444c18731">
+<img width="240" src="https://github.com/user-attachments/assets/71459d7a-05b2-480a-83f1-179444c18731"><br>
 <img width="240" src="https://github.com/user-attachments/assets/a7a4a12b-4050-4103-b7ad-870cd73865eb">
 <img width="240" src="https://github.com/user-attachments/assets/c1723815-73c6-424d-a051-d4278bceeb26"><br>
 자세한 나의 정보를 표시하는 페이지입니다.<br>
