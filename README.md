@@ -123,7 +123,7 @@ GooGle API를 통해 정확한 위치를 제공하며 Pin과 경로 표시를 �
 <img width="240" src="https://github.com/user-attachments/assets/9102eb30-02ae-4b00-8e24-5747a8b29f01">
 <img width="240" src="https://github.com/user-attachments/assets/71459d7a-05b2-480a-83f1-179444c18731"><br>
 <img width="240" src="https://github.com/user-attachments/assets/a7a4a12b-4050-4103-b7ad-870cd73865eb">
-<img width="240" src="https://github.com/user-attachments/assets/c1723815-73c6-424d-a051-d4278bceeb26"><br>
+<img width="246" src="https://github.com/user-attachments/assets/c1723815-73c6-424d-a051-d4278bceeb26"><br>
 자세한 나의 정보를 표시하는 페이지입니다.<br>
 회원 정보 수정, 탈퇴가 가능하며 자기소개, 내가 쓴 글, 방명록 등을 확인할 수있습니다. 
 <br><br>
