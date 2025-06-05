@@ -129,9 +129,10 @@ GooGle API를 통해 정확한 위치를 제공하며 Pin과 경로 표시를 �
 <br><br>
 
 ### 5. 마이페이지
-<img width="240" src="https://github.com/user-attachments/assets/9102eb30-02ae-4b00-8e24-5747a8b29f01"><br>
+<img width="255" src="https://github.com/user-attachments/assets/fcd4f020-2fe8-40af-9184-39a1031e8a0c">
+<img width="240" src="https://github.com/user-attachments/assets/7aa6f039-99bd-4519-a401-aa5eff7c03dd">
+<img width="245" src="https://github.com/user-attachments/assets/0798b36e-95b7-4225-872e-152760be693e"><br>
 비슷한 취미나 성향을 가진 사람끼리 테스트를 할 수 있습니다.<br>
-
 <br><br>
 
 ### 6. 챗봇
