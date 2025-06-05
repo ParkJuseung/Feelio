@@ -120,14 +120,16 @@ GooGle API를 통해 정확한 위치를 제공하며 Pin과 경로 표시를 �
 <br><br>
 
 ### 4. 차트 / 캘린더
-<img width="700" src="https://user-images.githubusercontent.com/60915285/189544282-23bd0402-7276-4a07-8508-fc2be2691ec6.gif">
+<img width="240" src="https://github.com/user-attachments/assets/9102eb30-02ae-4b00-8e24-5747a8b29f01">
+<img width="240" src="https://github.com/user-attachments/assets/71459d7a-05b2-480a-83f1-179444c18731">
+<img width="240" src="https://github.com/user-attachments/assets/a7a4a12b-4050-4103-b7ad-870cd73865eb">
+<img width="240" src="https://github.com/user-attachments/assets/c1723815-73c6-424d-a051-d4278bceeb26"><br>
 자세한 나의 정보를 표시하는 페이지입니다.<br>
 회원 정보 수정, 탈퇴가 가능하며 자기소개, 내가 쓴 글, 방명록 등을 확인할 수있습니다. 
-
 <br><br>
 
 ### 5. 마이페이지
-<img width="700" src="https://user-images.githubusercontent.com/60915285/189544280-2bf99a41-5bda-40bd-b92e-63248777c0c1.gif">
+<img width="240" src="https://github.com/user-attachments/assets/9102eb30-02ae-4b00-8e24-5747a8b29f01"><br>
 비슷한 취미나 성향을 가진 사람끼리 테스트를 할 수 있습니다.<br>
 
 <br><br>
