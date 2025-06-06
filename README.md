@@ -140,7 +140,7 @@ AI는 사용자에게 하고 싶은 조언, 오늘의 감정을 전달하고 사
 <img width="250" src="https://github.com/user-attachments/assets/b8da6b2d-5968-486e-b001-d68b4a6c9fe6">
 <img width="250" src="https://github.com/user-attachments/assets/1a937c5d-e1d7-42b9-b7ac-4fcba77e3439"><br>
 원하는 챗봇을 골라서 대화가 가능합니다.<br>
-챗봇은 Open AI를 기반으로 작동하며 위로를 받거나 조언을 얻을 수 있습니다. <br>
+챗봇은 Open AI를 기반으로 작동하며 사용자는 대화를 통해 위로를 받거나 조언을 얻을 수 있습니다.<br>
 
 <br><br>
 
@@ -175,18 +175,14 @@ AI는 사용자에게 하고 싶은 조언, 오늘의 감정을 전달하고 사
 ## 팀원 소개 👪
 <table>
     <tr>
-        <td height="140px" align="center"> <a href="https://github.com/Qulip">
-            <img src="https://avatars.githubusercontent.com/Qulip" width="140px" /> <br><br> 👑 유일권 <br>(Back-End) </a> <br></td>
-        <td height="140px" align="center"> <a href="https://github.com/BoyeonK">
-            <img src="https://avatars.githubusercontent.com/BoyeonK" width="140px" /> <br><br> 🐱 김보연 <br>(Front-End) </a> <br></td>
-        <td height="140px" align="center"> <a href="https://github.com/js0828">
-            <img src="https://avatars.githubusercontent.com/js0828" width="140px" /> <br><br> 🐻 최종수 <br>(Back-End) </a> <br></td>
-        <td height="140px" align="center"> <a href="https://github.com/choijoohee213">
-            <img src="https://avatars.githubusercontent.com/choijoohee213" width="140px" /> <br><br> 🐰 최주희 <br>(Back-End) </a> <br></td>
-        <td height="140px" align="center"> <a href="https://github.com/niinp28">
-            <img src="https://avatars.githubusercontent.com/niinp28" width="140px" /> <br><br> 🐯 최준혁 <br>(Front-End) </a> <br></td>
-        <td height="140px" align="center"> <a href="https://github.com/HSungDuk">
-            <img src="https://avatars.githubusercontent.com/HSungDuk" width="140px" /> <br><br> 🐹 홍성덕 <br>(Front-End) </a> <br></td>
+        <td height="140px" align="center"> <a href="https://github.com/josephkimmm">
+            <img src="https://avatars.githubusercontent.com/josephkimmm" width="140px" /> <br><br> 김두현 <br>(Back-End) </a> <br></td>
+        <td height="140px" align="center"> <a href="https://github.com/dnjs0">
+            <img src="https://avatars.githubusercontent.com/dnjs0" width="140px" /> <br><br> 박세원 <br>(Front-End) </a> <br></td>
+        <td height="140px" align="center"> <a href="https://github.com/ParkJuseung">
+            <img src="https://avatars.githubusercontent.com/ParkJuseung" width="140px"/> <br><br> 박주승 <br>(Back-End) </a> <br></td>
+        <td height="140px" align="center"> <a href="https://github.com/jern2">
+            <img src="https://avatars.githubusercontent.com/jern2" width="140px" /> <br><br> 이지원 <br>(Back-End) </a> <br></td>
     </tr>
 </table>
 
