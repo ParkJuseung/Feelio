@@ -69,6 +69,7 @@ Feelio는 매일의 감정을 기록하고, AI를 통해 분석하며, 자신을
 ### TOOL
 
 `Postman` <br>
+`figma` <br>
 `Excalidraw` <br><br>
 
 
@@ -102,8 +103,8 @@ Feelio는 매일의 감정을 기록하고, AI를 통해 분석하며, 자신을
 ### 2. 홈
 <img width="250" src="https://github.com/user-attachments/assets/ed039ee2-c046-4576-ac51-54baa568ec02"><br>
 
-추천하고 싶은 여행 장소나 맛집을 공유할 수 있습니다. <br>
-사용자들에게 Google API를 통해 더 정확한 위치 정보를 제공하며, 해시태그나 사진을 통해 정보를 더 효과적으로 전달할 수 있습니다.
+작성한 일기가 보이는 화면입니다. <br>
+작성한 일기의 정보를 간단하게 확인할 수 있으며 중요한 일기는 북마크를 통해 따로 리스트를 볼 수 있습니다.
 
 <br><br>
 
@@ -114,8 +115,8 @@ Feelio는 매일의 감정을 기록하고, AI를 통해 분석하며, 자신을
 
 
 
-추천하고싶은 여행 경로를 사용자들에게 추천할 수 있습니다. <br>
-GooGle API를 통해 정확한 위치를 제공하며 Pin과 경로 표시를 통해 효율적인 여행 경로를 확인할 수 있습니다.
+사용자가 작성한 일기를 AI가 분석합니다.  <br>
+AI는 사용자에게 하고 싶은 조언, 오늘의 감정을 전달하고 사용자의 DB정보를 기반으로 사용자에게 맞는 활동과 음악을 추천합니다.
 
 <br><br>
 
@@ -124,23 +125,22 @@ GooGle API를 통해 정확한 위치를 제공하며 Pin과 경로 표시를 �
 <img width="240" src="https://github.com/user-attachments/assets/71459d7a-05b2-480a-83f1-179444c18731"><br>
 <img width="240" src="https://github.com/user-attachments/assets/a7a4a12b-4050-4103-b7ad-870cd73865eb">
 <img width="246" src="https://github.com/user-attachments/assets/c1723815-73c6-424d-a051-d4278bceeb26"><br>
-자세한 나의 정보를 표시하는 페이지입니다.<br>
-회원 정보 수정, 탈퇴가 가능하며 자기소개, 내가 쓴 글, 방명록 등을 확인할 수있습니다. 
+사용자의 감정기록이나 변화를 시각화하여 보여줍니다.<br>
+사용자가 작성했던 일기의 대표 감정을 기준으로 기록되며 일정 감정 이하로 떨어진 사용자에게 알림을 보냅니다. <br>
 <br><br>
 
 ### 5. 마이페이지
 <img width="255" src="https://github.com/user-attachments/assets/fcd4f020-2fe8-40af-9184-39a1031e8a0c">
 <img width="240" src="https://github.com/user-attachments/assets/7aa6f039-99bd-4519-a401-aa5eff7c03dd">
 <img width="245" src="https://github.com/user-attachments/assets/0798b36e-95b7-4225-872e-152760be693e"><br>
-비슷한 취미나 성향을 가진 사람끼리 테스트를 할 수 있습니다.<br>
+회원정보 수정 및 회원 탈퇴가 가능하며 사용자가 일기 작성시 업로드했던 모든 사진을 확인할 수 있습니다.<br>
 <br><br>
 
 ### 6. 챗봇
 <img width="250" src="https://github.com/user-attachments/assets/b8da6b2d-5968-486e-b001-d68b4a6c9fe6">
 <img width="250" src="https://github.com/user-attachments/assets/1a937c5d-e1d7-42b9-b7ac-4fcba77e3439"><br>
-
-방의 모든 참가자들은 채팅 기능을 사용할 수 있습니다.<br>
-여기에는 비속어 필터링이 존재하여, 비속어가 섞인 채팅을 보내게 되면 '[삭제된 메세지]' 라고 대체되어 보내집니다.
+원하는 챗봇을 골라서 대화가 가능합니다.<br>
+챗봇은 Open AI를 기반으로 작동하며 위로를 받거나 조언을 얻을 수 있습니다. <br>
 
 <br><br>
 
