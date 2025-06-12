@@ -49,13 +49,10 @@ Feelio는 매일의 감정을 기록하고, AI를 통해 분석하며, 자신을
 `Spring Boot 3.1`  <br>
 `Gradle` <br>
 `JPA`  <br>
-`MyBatis` <br>
 `Oracle 18c` <br>
-`Swagger2` <br><br>
 
 
-### 버전/이슈 관리
-
+### Version Controller
 `Git` <br>
 `Github` <br><br>
 
@@ -67,14 +64,12 @@ Feelio는 매일의 감정을 기록하고, AI를 통해 분석하며, 자신을
 `Excalidraw` <br><br>
 
 
-### 협업
-
+### Task / Schedule
 `Discord` <br>
 `Notion` <br><br>
 
 
 ### IDE
-
 `Visual Studio Code` <br>
 `InteliJ` <br>
 `STS4` <br><br>
