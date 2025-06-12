@@ -7,7 +7,7 @@ AI 감정 다이어리 서비스<br><br>
   2025.05.07 ~ 2025.05.23
   <br><br>
 
-  [Notion](https://friendly-sternum-f92.notion.site/19da6b30f99980ad8530e8e65396a025?pvs=74)  |  [UCC]()
+  [Notion](https://friendly-sternum-f92.notion.site/19da6b30f99980ad8530e8e65396a025?pvs=74)
 
 </div>
 <br/>
