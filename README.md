@@ -54,12 +54,6 @@ Feelio는 매일의 감정을 기록하고, AI를 통해 분석하며, 자신을
 `Swagger2` <br><br>
 
 
-### CI/CD
-`AWS EC2`  <br>
-`Docker`  <br>
-`Docker-compose` <br><br>
-
-
 ### 버전/이슈 관리
 
 `Git` <br>
@@ -89,7 +83,8 @@ Feelio는 매일의 감정을 기록하고, AI를 통해 분석하며, 자신을
 <br><br>
 
 ## 서비스 구조도 🔍
-<img width="750" alt="image" src="https://user-images.githubusercontent.com/60915285/188927329-3cf2a1a5-1e58-4896-9163-2049ab7cfa5f.png">
+<img width="1050" alt="image" src="https://github.com/user-attachments/assets/318ef5f1-df64-4733-90a8-925cf103b2a1">
+
 <br><br>
 
 ## 주요 기능 📚
