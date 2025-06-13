@@ -11,8 +11,8 @@
   <link rel="stylesheet" th:href="@{/css/phone-style.css}">
   <!-- 프레임 스타일 -->
   <link rel="stylesheet" th:href="@{/css/phone-frame.css}">
-  <!-- 스크롤바 스타일 -->
-  <link rel="stylesheet" th:href="@{/css/scrollbar-style.css}">
+<!--  &lt;!&ndash; 스크롤바 스타일 &ndash;&gt;-->
+<!--  <link rel="stylesheet" th:href="@{/css/scrollbar-style.css}">-->
   <!-- 앱 콘텐츠 스타일 -->
   <link rel="stylesheet" th:href="@{/css/app-content.css}">
 
@@ -55,12 +55,19 @@
       display: flex;
       flex-direction: column;
       padding: 10px 24px 30px;
-      overflow-y: auto;
+      overflow-y: auto; /* 스크롤 가능하게 설정 */
+      max-height: calc(100% - 60px); /* 헤더 높이를 고려하여 최대 높이 설정 */
+      padding-bottom: 80px; /* 하단 여백 추가 */
+    }
+
+    /* 스크롤바 영역 수정 */
+    .signup-container::-webkit-scrollbar {
+      width: 5px; /* 스크롤바 너비 줄임 */
     }
 
     .logo-container {
       text-align: center;
-      margin-bottom: 30px;
+      margin-bottom: 20px; /* 간격 줄임 */
     }
 
     .logo {
@@ -73,12 +80,12 @@
     .sub-title {
       font-size: 14px;
       color: #666;
-      margin-bottom: 30px;
+      margin-bottom: 20px; /* 간격 줄임 */
     }
 
     .input-field {
       position: relative;
-      margin-bottom: 20px;
+      margin-bottom: 15px; /* 간격 줄임 */
     }
 
     .input-field input {
@@ -117,13 +124,13 @@
     }
 
     .checkbox-container {
-      margin: 20px 0;
+      margin: 15px 0; /* 간격 줄임 */
     }
 
     .checkbox-item {
       display: flex;
       align-items: center;
-      margin-bottom: 12px;
+      margin-bottom: 8px; /* 간격 줄임 */
     }
 
     .checkbox-item input[type="checkbox"] {
@@ -152,6 +159,8 @@
       transition: all 0.3s ease;
       margin-top: 10px;
       box-shadow: 0 4px 15px rgba(0, 123, 255, 0.2);
+      position: relative;
+      z-index: 2;
     }
 
     .signup-button:active {
@@ -161,7 +170,8 @@
 
     .login-link {
       text-align: center;
-      margin-top: 24px;
+      margin-top: 15px;
+      margin-bottom: 20px;
       font-size: 14px;
       color: #666;
     }
@@ -170,6 +180,11 @@
       color: #007BFF;
       text-decoration: none;
       font-weight: 600;
+    }
+
+    /* 하단 패딩 추가하여 마지막 요소가 잘 보이도록 */
+    form {
+      padding-bottom: 10px;
     }
   </style>
 </head>
@@ -198,7 +213,7 @@
 
     <div class="signup-container">
       <div class="logo-container">
-        <div class="logo">감다</div>
+        <div class="logo">Feelio</div>
         <div class="sub-title">감정을 기록하다</div>
       </div>
 
@@ -250,7 +265,7 @@
 
           <div class="checkbox-item">
             <input type="checkbox" id="privacy-agree" th:field="*{privacyAgree}" required>
-            <label for="privacy-agree">개인정보 수집 및 이용 동의 (필수)</label>
+            <label for="privacy-agree">개인정보 수집 동의 (필수)</label>
             <a href="#" class="terms-link">보기</a>
           </div>
 

@@ -119,4 +119,5 @@ public class HomeController {
         log.warn("알 수 없는 principal 타입 또는 사용자를 찾을 수 없음: {}", principal.getClass().getName());
         return null;
     }
+
 }
