@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>감정 통계 달력</title>
+    <link rel="stylesheet" th:href="@{/css/base.css}" />
+    <link rel="stylesheet" th:href="@{/css/phone-style.css}" />
+    <link rel="stylesheet" th:href="@{/css/phone-frame.css}" />
+    <link rel="stylesheet" th:href="@{/css/scrollbar-style.css}" />
+    <link rel="stylesheet" th:href="@{/css/app-content.css}" />
+    <style>
+        body {
+            font-family: 'S-CoreDream', sans-serif;
+        }
+
+        .app-container {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .scrollable-content {
+            flex: 1;
+            overflow-y: auto;
+            padding-bottom: 140px;
+        }
+
+        .chart-container {
+            background: white;
+            margin: 20px 16px;
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            border: 1px solid #f0f0f0;
+        }
+
+        .chart-container h3 {
+            text-align: center;
+            color: #007BFF;
+            font-size: 16px;
+            margin-bottom: 16px;
+        }
+
+        .toggle-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 0 18px 16px;
+        }
+
+        .toggle-buttons button {
+            padding: 8px 16px;
+            font-size: 14px;
+            font-family: 'GmarketSans', sans-serif;
+            border-radius: 20px;
+            border: 1px solid var(--primary-color);
+            background-color: white;
+            color: var(--primary-color);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-buttons button.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        #yearlyGrid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 3px;
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto 20px auto;
+        }
+
+        /* 연간 히트맵 셀의 크기를 명확히 지정 */
+        .heat-cell {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            border-radius: 4px;
+            background-color: #f0f4ff;
+            opacity: 0.6;
+            transition: transform 0.2s ease, filter 0.2s ease;
+            cursor: pointer;
+            overflow: hidden; /* 추가: 이미지가 셀 밖으로 나가지 않도록 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 이모지가 있는 칸 */
+        .heat-cell:has(img) {
+            background-color: #e0e6ff;
+            opacity: 1;
+        }
+
+        /* 호버 시 효과 */
+        .heat-cell:hover {
+            transform: scale(1.1);
+            filter: brightness(1.1);
+            z-index: 1;
+        }
+
+        /* 기존의 중복되는 emotion-img 규칙을 하나로 통합 */
+        .emotion-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 3px;
+            max-width: 100%;
+            max-height: 100%;
+            display: block; /* 추가: 이미지 하단 여백 제거 */
+        }
+
+        /* 월간 달력 */
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+
+        /* 월간 달력 감정 아이콘 컨테이너 크기 고정 */
+        .calendar-cell .emotion {
+            width: 24px;
+            height: 24px;
+            margin-top: 4px;
+            transition: transform 0.2s ease;
+            overflow: hidden; /* 추가 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .calendar-header button {
+            background: linear-gradient(135deg, #007BFF, #00a1ff);
+            color: white;
+            border: none;
+            font-size: 16px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .calendar-header button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
+        }
+
+        #monthTitle {
+            font-size: 17px;
+            color: #007BFF;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 6px;
+        }
+
+        .weekday-header {
+            font-weight: bold;
+            font-size: 12px;
+            text-align: center;
+            color: #007BFF;
+            padding-bottom: 4px;
+            border-bottom: 1px solid #e0e6ff;
+        }
+
+        .calendar-cell {
+            background-color: #f9fbff;
+            border-radius: 14px;
+            text-align: center;
+            padding: 6px 4px;
+            font-size: 11px;
+            min-height: 46px;
+            box-shadow: inset 0 0 0 1px #e0e6ff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: background 0.2s ease, box-shadow 0.2s ease;
+            cursor: pointer;
+        }
+
+        .calendar-cell:hover {
+            background-color: #eef4ff;
+            box-shadow: 0 2px 6px rgba(0, 123, 255, 0.1);
+        }
+
+        .calendar-cell:hover .emotion {
+            transform: scale(1.15);
+        }
+
+        .yearly-label {
+            text-align: center;
+            font-size: 10px;
+            color: #999;
+        }
+
+        .emotion-filters {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #e0e6ff;
+        }
+
+        .emotion-filters h4 {
+            text-align: center;
+            font-size: 14px;
+            color: #007BFF;
+            margin-bottom: 12px;
+        }
+
+        .emotion-counters {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .emotion-counter {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            background: #f3f4f7;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
+        }
+
+        .emotion-counter.active {
+            border-color: #007BFF;
+            box-shadow: 0 2px 8px rgba(0, 123, 255, 0.2);
+        }
+
+        .emotion-counter .emotion-icon {
+            margin-right: 6px;
+            font-size: 16px;
+        }
+
+        .emotion-counter .emotion-name {
+            margin-right: 4px;
+        }
+
+        .emotion-counter .emotion-count {
+            background: rgba(0, 123, 255, 0.1);
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        /* 필터링된 셀 스타일 */
+        .heat-cell.filtered {
+            opacity: 0.2;
+        }
+
+        .heat-cell[data-emotion="행복"] { background-color: #FFF9C4; }
+        .heat-cell[data-emotion="만족"] { background-color: #FFE0B2; }
+        .heat-cell[data-emotion="설렘"] { background-color: #F8BBD0; }
+        .heat-cell[data-emotion="평온"] { background-color: #B2DFDB; }
+        .heat-cell[data-emotion="불안"] { background-color: #CFD8DC; }
+        .heat-cell[data-emotion="슬픔"] { background-color: #90A4AE; }
+        .heat-cell[data-emotion="분노"] { background-color: #FFAB91; }
+
+        .menu-bar, .new-diary-button {
+            position: absolute;
+            z-index: 10;
+        }
+
+        .menu-bar {
+            bottom: 70px;
+            left: 0;
+            right: 0;
+            height: 65px;
+            background-color: white;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.06);
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .menu-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #aaa;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .menu-item.active {
+            color: #007BFF;
+        }
+
+        .menu-icon {
+            font-size: 22px;
+            margin-bottom: 4px;
+        }
+
+        .new-diary-button {
+            bottom: 140px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            border-radius: 25px;
+            background: linear-gradient(135deg, #007BFF, #00a1ff);
+            color: white;
+            font-size: 24px;
+            border: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.4);
+        }
+
+        .new-diary-button:active {
+            transform: scale(0.92);
+        }
+
+        #tooltip {
+            display: none;
+            position: fixed; /* ← position을 absolute → fixed 로 변경 */
+            background: white;
+            border: 1px solid #ccc;
+            padding: 6px 10px;
+            font-size: 13px;
+            color: black;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            z-index: 99999;
+            pointer-events: none;
+        }
+
+        /*모달창*/
+        .modal-backdrop {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.4);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+        }
+
+        .modal-box {
+            background: white;
+            width: 90%;
+            max-width: 400px;
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            animation: fadeIn 0.3s ease;
+            border: none;
+            outline: none;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-sizing: border-box;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 16px;
+            color: #333;
+        }
+
+        .modal-header button {
+            background: #f5f5f5;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            font-size: 16px;
+            color: #666;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s ease;
+        }
+
+        .modal-header button:hover {
+            background: #e0e0e0;
+        }
+
+        .modal-tags {
+            margin-bottom: 16px;
+        }
+
+        .modal-tags span {
+            display: inline-block;
+            margin: 4px 8px 4px 0;
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 12px;
+            background: linear-gradient(135deg, #007BFF, #00a1ff);
+            color: white;
+            font-weight: 500;
+        }
+
+        .modal-text {
+            margin: 16px 0;
+            font-size: 15px;
+            line-height: 1.6;
+            color: #444;
+            background: #f8f9fa;
+            padding: 16px;
+            border-radius: 12px;
+            border-left: 4px solid #007BFF;
+        }
+
+        .modal-audio {
+            margin: 16px 0;
+        }
+
+        .modal-audio audio {
+            width: 100%;
+            height: 40px;
+            border-radius: 8px;
+        }
+
+        .modal-images {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .modal-images img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: transform 0.2s ease;
+        }
+
+        .modal-images img:hover {
+            transform: scale(1.05);
+        }
+
+        .heatmap-vertical {
+            display: flex;
+        }
+
+        .heatmap-row {
+            margin-bottom: 2px;
+        }
+
+        .day-label {
+            width: 24px;
+            font-size: 10px;
+            text-align: right;
+            margin-right: 4px;
+        }
+
+        .week-column {
+            display: flex;
+            flex-direction: column;
+        }
+    </style>
+</head>
+<body>
+
+<div class="frame-container"><div class="phone-frame"></div></div>
+<div class="phone-container">
+    <div class="notch"></div>
+    <div class="status-bar">
+        <div class="time">9:41</div>
+        <div class="status-icons">
+            <div class="signal"><div></div><div></div><div></div><div></div></div>
+        </div>
+    </div>
+    <div class="app-container">
+        <div class="app-header header-layout-center">
+            <div class="app-title">감다 일기</div>
+            <div class="app-date">나의 감정 모아보기</div>
+        </div>
+        <div class="scrollable-content">
+            <div class="toggle-buttons">
+                <form method="get" th:action="@{/calendar}">
+                    <input type="hidden" name="mode" value="monthly"/>
+                    <button type="submit" th:classappend="${mode} == 'monthly' ? 'active'">월간</button>
+                </form>
+                <form method="get" th:action="@{/calendar}">
+                    <input type="hidden" name="mode" value="yearly"/>
+                    <button type="submit" th:classappend="${mode} == 'yearly' ? 'active'">연간</button>
+                </form>
+            </div>
+
+            <!-- 월간 달력 -->
+            <div id="calendar-view" class="chart-container" th:if="${mode} == 'monthly'">
+                <div class="calendar-header">
+                    <button id="prevMonthBtn">←</button>
+                    <h3 id="monthTitle" th:text="${year} + '년 ' + ${month} + '월'"></h3>
+                    <button id="nextMonthBtn">→</button>
+                </div>
+
+                <div class="calendar-grid">
+                    <!-- 요일 헤더 -->
+                    <div class="weekday-header">일</div>
+                    <div class="weekday-header">월</div>
+                    <div class="weekday-header">화</div>
+                    <div class="weekday-header">수</div>
+                    <div class="weekday-header">목</div>
+                    <div class="weekday-header">금</div>
+                    <div class="weekday-header">토</div>
+
+                    <!-- 빈 셀: 해당 월의 시작 요일 보정 -->
+                    <th:block th:each="i : ${#numbers.sequence(1, firstDayOfWeek)}">
+                        <div class="calendar-cell"></div>
+                    </th:block>
+
+                    <!-- 날짜 셀 -->
+                    <th:block th:each="day : ${#numbers.sequence(1, lastDay)}"
+                              th:with="dayStr=${day < 10 ? '0' + day : day},
+                   monthStr=${month < 10 ? '0' + month : month},
+                   key=${year + '-' + monthStr + '-' + dayStr}">
+                        <div class="calendar-cell"
+                             th:data-date="${key}"
+                             th:data-diary-id="${diaryIdMap[key.toString()]}"
+                             th:onclick="${diaryIdMap[key.toString()] != null} ? 'openDiaryModal(' + diaryIdMap[key.toString()] + ')' : null">
+                            <div th:text="${day}"></div>
+                            <th:block th:if="${emotionMap[key.toString()] != null}">
+                                <div class="emotion" th:onclick="${diaryIdMap[key.toString()] != null} ? 'openDiaryModal(' + diaryIdMap[key.toString()] + ')' : null">
+                                    <img class="emotion-img"
+                                         th:src="@{'/images/emotions/' + ${emotionMap[key.toString()]}}"
+                                         alt="감정" />
+                                </div>
+                            </th:block>
+                        </div>
+                    </th:block>
+
+                </div>
+            </div>
+
+
+            <!-- 연간 히트맵 -->
+            <div id="yearly-view" class="chart-container" th:if="${mode} == 'yearly'">
+                <div class="calendar-header">
+                    <button id="prevYearBtn">←</button>
+                    <h3 id="yearTitle" th:text="${year} + '년 감정'" th:attr="data-year=${year}"></h3>
+
+                    <button id="nextYearBtn">→</button>
+                </div>
+
+
+
+                <div id="yearlyGrid" class="heatmap-vertical">
+                    <div></div>
+                    <th:block th:each="m : ${#numbers.sequence(1,12)}">
+                        <div class="yearly-label" th:text="${m} + '월'"></div>
+                    </th:block>
+                    <th:block th:each="d : ${#numbers.sequence(1,31)}">
+                        <div class="day-label" th:text="${d}"></div>
+                        <th:block th:each="m : ${#numbers.sequence(1,12)}">
+                            <th:block th:with="key=${year + '-' + (m < 10 ? '0' + m : m) + '-' + (d < 10 ? '0' + d : d)}">
+                                <div class="heat-cell" th:if="${yearlyEmotionMap[key] != null}" th:data-emotion="${yearlyEmotionMap[key]}"></div>
+                            </th:block>
+                        </th:block>
+                    </th:block>
+                </div>
+
+                <!-- 감정 필터용 카운터 영역 -->
+                <div class="emotion-filters">
+                    <h4>감정별 분포</h4>
+                    <div id="emotionCounters" class="emotion-counters"></div>
+                </div>
+            </div>
+            <div id="tooltip"></div>
+
+        </div>
+
+        <!-- 모달 -->
+        <div id="diaryModal" class="modal-backdrop" style="display: none;">
+            <div class="modal-box">
+                <div class="modal-header">
+                    <span id="modalTitle" class="modal-title">제목</span>
+                    <button id="closeModal">✕</button>
+                </div>
+                <div class="modal-tags" id="modalTags"></div>
+                <div id="modalContent" class="modal-text"></div>
+                <div id="modalAudio" class="modal-audio"></div>
+                <div id="modalImages" class="modal-images"></div>
+            </div>
+        </div>
+
+
+        <!-- 메뉴 바 및 새 일기 버튼 -->
+        <button class="new-diary-button">+</button>
+        <!-- 메뉴 바 -->
+        <div class="menu-bar">
+
+            <div class="menu-item">
+                <div class="menu-icon">💬</div>
+                <div>채팅</div>
+            </div>
+            <div class="menu-item" onclick="location.href='/calendar'">
+                <div class="menu-icon">📅</div>
+                <div>달력</div>
+            </div>
+            <div class="menu-item active">
+                <div class="menu-icon">📖</div>
+                <div>일기</div>
+            </div>
+            <div class="menu-item" onclick="location.href='/chart'">
+                <div class="menu-icon">📊</div>
+                <div>통계</div>
+            </div>
+            <div class="menu-item active">
+                <div class="menu-icon">⚙️</div>
+                <div>설정</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    // yearly-heatmap.js
+
+    function getWeekAndDay(dateStr) {
+        const date = new Date(dateStr);
+        const startOfYear = new Date(date.getFullYear(), 0, 1);
+        const dayOfWeek = date.getDay();
+        const week = Math.floor(((date - startOfYear) / (1000 * 60 * 60 * 24) + startOfYear.getDay()) / 7);
+        return { week, day: dayOfWeek };
+    }
+
+    function getWeekNumber(date) {
+        const jan1 = new Date(date.getFullYear(), 0, 1);
+        const dayOfYear = ((date - jan1) / 86400000) + jan1.getDay() + 1;
+        return Math.ceil(dayOfYear / 7);
+    }
+
+    function loadYearlyHeatmap(year) {
+        fetch(`/api/calendar/yearly/${year}`)
+            .then(res => res.json())
+            .then(data => {
+                updateEmotionCounters(data);
+
+                // 실제 데이터에서 년도 추출
+                const actualYear = Object.keys(data).length > 0 ?
+                    Object.keys(data)[0].split('-')[0] : year;
+
+                // 제목 업데이트
+                const yearTitle = document.getElementById("yearTitle");
+                if (yearTitle) {
+                    yearTitle.innerText = actualYear + '년 감정 히트맵';
+                    yearTitle.setAttribute('data-year', actualYear);
+                }
+
+                renderHeatmap(data, actualYear);
+            });
+    }
+
+    // renderHeatmap 함수 수정
+    function renderHeatmap(emotionMap, year) {
+        const grid = document.getElementById("yearlyGrid");
+        grid.innerHTML = "";
+
+        const start = new Date(`${year}-01-01`);
+        const end = new Date(`${year}-12-31`);
+        const cells = [];
+
+        // 1년간의 모든 날짜를 순서대로 배열에 저장
+        for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+            const dateStr = d.toISOString().slice(0, 10);
+            const raw = emotionMap[dateStr];
+            const emoji = typeof raw === "string" ? raw : raw?.emoji || null;
+            const diaryId = typeof raw === "object" ? raw?.diaryId : null;
+
+            cells.push({ date: dateStr, emoji, diaryId });
+        }
+
+        // 7칸씩 나누어서 행 생성 (깃허브 잔디 세로 버전)
+        const totalRows = Math.ceil(cells.length / 7);
+
+        grid.style.display = "grid";
+        grid.style.gridTemplateColumns = "repeat(7, 1fr)";
+        grid.style.gridTemplateRows = `repeat(${totalRows}, auto)`;
+
+        // 모든 날짜를 순서대로 렌더링
+        cells.forEach((cellData, index) => {
+            const cell = document.createElement("div");
+            cell.className = "heat-cell";
+
+            if (cellData.emoji) {
+                const img = document.createElement("img");
+                img.src = `/images/emotions/${extractFileName(cellData.emoji)}`;
+                img.className = "emotion-img";
+                img.style.width = "100%";
+                img.style.height = "100%";
+
+                if (cellData.diaryId) {
+                    cell.style.cursor = "pointer";
+                    cell.addEventListener("click", (e) => {
+                        e.stopPropagation();
+                        openDiaryModal(cellData.diaryId);
+                    });
+                }
+                cell.appendChild(img);
+            }
+
+            // 툴팁 이벤트 (일기가 있든 없든 날짜 표시)
+            cell.addEventListener("mouseenter", (e) => {
+                const tooltip = document.getElementById("tooltip");
+                tooltip.innerText = cellData.date;
+                tooltip.style.display = "block";
+                tooltip.style.position = "fixed";
+                tooltip.style.left = e.clientX + 10 + "px";
+                tooltip.style.top = e.clientY - 30 + "px";
+                tooltip.style.background = "white";
+                tooltip.style.border = "1px solid #ccc";
+                tooltip.style.padding = "6px 10px";
+                tooltip.style.fontSize = "13px";
+                tooltip.style.color = "black";
+                tooltip.style.borderRadius = "6px";
+                tooltip.style.boxShadow = "0 2px 8px rgba(0,0,0,0.15)";
+                tooltip.style.zIndex = "99999";
+                tooltip.style.pointerEvents = "none";
+            });
+
+            cell.addEventListener("mouseleave", () => {
+                const tooltip = document.getElementById("tooltip");
+                tooltip.style.display = "none";
+            });
+
+            cell.addEventListener("mousemove", (e) => {
+                const tooltip = document.getElementById("tooltip");
+                tooltip.style.left = e.clientX + 10 + "px";
+                tooltip.style.top = e.clientY - 30 + "px";
+            });
+
+            grid.appendChild(cell);
+        });
+    }
+
+
+
+
+
+
+
+    function updateEmotionCounters(emotionMap) {
+        const grid = document.getElementById("yearlyGrid");
+        const parent = grid?.parentElement;
+        const existingFilter = document.querySelector(".emotion-filters");
+        if (existingFilter) existingFilter.remove();
+
+        const counterWrapper = document.createElement("div");
+        counterWrapper.className = "emotion-filters";
+        counterWrapper.innerHTML = `
+    <h4>감정별 분포</h4>
+    <div id="emotionCounters" class="emotion-counters"></div>
+  `;
+
+        if (parent) {
+            parent.insertBefore(counterWrapper, grid);
+        }
+
+        const counterContainer = counterWrapper.querySelector("#emotionCounters");
+        if (!counterContainer) return;
+
+        const emotionCounts = {};
+        Object.values(emotionMap).forEach(entry => {
+            const emoji = typeof entry === 'string' ? entry : entry?.emoji;
+            if (emoji) {
+                const fileName = extractFileName(emoji);
+                if (!emotionCounts[fileName]) emotionCounts[fileName] = 0;
+                emotionCounts[fileName]++;
+            }
+        });
+
+        const allBtn = document.createElement('div');
+        allBtn.className = 'emotion-counter active';
+        allBtn.innerText = '전체';
+        allBtn.addEventListener('click', () => {
+            document.querySelectorAll('.heat-cell').forEach(cell => cell.classList.remove('filtered'));
+            document.querySelectorAll('.emotion-counter').forEach(c => c.classList.remove('active'));
+            allBtn.classList.add('active');
+        });
+        counterContainer.appendChild(allBtn);
+
+        const emotionNameMap = {
+            "happy.png": "행복",
+            "satisfied.png": "만족",
+            "excited.png": "설렘",
+            "peaceful.png": "평온",
+            "anxious.png": "불안",
+            "sad.png": "슬픔",
+            "angry.png": "분노"
+        };
+
+        Object.entries(emotionCounts).forEach(([fileName, count]) => {
+            const counter = document.createElement("div");
+            counter.className = "emotion-counter";
+            const emotionName = emotionNameMap[fileName] || "알 수 없음";
+
+            counter.innerHTML = `<img src="/images/emotions/${fileName}" alt="emotion" style="width:18px; height:18px; margin-right:6px; border-radius:4px;"><span>${emotionName}(${count})</span>`;
+            counter.addEventListener("click", () => filterByEmotion(fileName));
+            counterContainer.appendChild(counter);
+        });
+    }
+
+    function filterByEmotion(fileName) {
+        document.querySelectorAll('.heat-cell').forEach(cell => {
+            const img = cell.querySelector('img');
+            if (!img || !img.src.includes(fileName)) {
+                cell.classList.add('filtered');
+            } else {
+                cell.classList.remove('filtered');
+            }
+        });
+
+        document.querySelectorAll('.emotion-counter').forEach(c => c.classList.remove('active'));
+        const selected = [...document.querySelectorAll('.emotion-counter')].find(c => c.innerHTML.includes(fileName));
+        if (selected) selected.classList.add('active');
+    }
+
+    function extractFileName(path) {
+        return path.substring(path.lastIndexOf('/') + 1);
+    }
+
+    function openDiaryModal(diaryId) {
+        if (!diaryId) return;
+
+        console.log("Opening modal for diary ID:", diaryId); // 디버깅용
+
+        fetch(`/api/diary/${diaryId}`)
+            .then(res => {
+                if (!res.ok) throw new Error("Failed to fetch diary");
+                return res.json();
+            })
+            .then(data => {
+                console.log("Diary data:", data); // 디버깅용
+
+                document.getElementById('modalTitle').innerText = data.title || '제목 없음';
+                document.getElementById('modalContent').innerText = data.content || '내용 없음';
+
+                const tagBox = document.getElementById('modalTags');
+                tagBox.innerHTML = '';
+                (data.tags || []).forEach(tag => {
+                    const span = document.createElement('span');
+                    span.innerText = tag;
+                    tagBox.appendChild(span);
+                });
+
+                const imgBox = document.getElementById('modalImages');
+                imgBox.innerHTML = '';
+                (data.photos || []).forEach(url => {
+                    const img = document.createElement('img');
+                    img.src = url;
+                    imgBox.appendChild(img);
+                });
+
+                const audioBox = document.getElementById('modalAudio');
+                audioBox.innerHTML = '';
+                if (data.audioUrl) {
+                    const audio = document.createElement('audio');
+                    audio.controls = true;
+                    audio.src = data.audioUrl;
+                    audioBox.appendChild(audio);
+                }
+
+                document.getElementById('diaryModal').style.display = 'flex';
+            })
+            .catch(err => {
+                console.error("Modal fetch error:", err);
+                alert("일기를 불러오는데 실패했습니다.");
+            });
+    }
+
+    // 모달 닫기 이벤트 추가
+    function closeModal() {
+        document.getElementById('diaryModal').style.display = 'none';
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        // 모달 닫기 버튼 이벤트 바인딩
+        const closeModalBtn = document.getElementById('closeModal');
+        if (closeModalBtn) {
+            closeModalBtn.addEventListener('click', closeModal);
+        }
+
+        // 모달 배경 클릭시 닫기
+        const modalBackdrop = document.getElementById('diaryModal');
+        if (modalBackdrop) {
+            modalBackdrop.addEventListener('click', function(e) {
+                if (e.target === modalBackdrop) {
+                    closeModal();
+                }
+            });
+        }
+
+        // 월간 달력에서 emotion div에 클릭 이벤트 추가
+        document.querySelectorAll('.calendar-cell .emotion').forEach(emotionDiv => {
+            const parentCell = emotionDiv.closest('.calendar-cell');
+            const diaryId = parentCell?.getAttribute('data-diary-id');
+            if (diaryId) {
+                emotionDiv.style.cursor = 'pointer';
+                emotionDiv.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    openDiaryModal(parseInt(diaryId));
+                });
+            }
+        });
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const mode = urlParams.get('mode') || 'monthly';
+        if (mode === 'yearly') {
+            const year = urlParams.get('year') || 2025;
+            loadYearlyHeatmap(year);
+        }
+
+        const prevMonthBtn = document.getElementById("prevMonthBtn");
+        const nextMonthBtn = document.getElementById("nextMonthBtn");
+
+        if (prevMonthBtn) {
+            prevMonthBtn.addEventListener("click", function () {
+                changeMonth(-1);
+            });
+        }
+
+        if (nextMonthBtn) {
+            nextMonthBtn.addEventListener("click", function () {
+                changeMonth(1);
+            });
+        }
+        // 연간 달력 화살표 이벤트 추가
+        const prevYearBtn = document.getElementById("prevYearBtn");
+        const nextYearBtn = document.getElementById("nextYearBtn");
+
+        if (prevYearBtn) {
+            prevYearBtn.addEventListener("click", function () {
+                changeYear(-1);
+            });
+        }
+
+        if (nextYearBtn) {
+            nextYearBtn.addEventListener("click", function () {
+                changeYear(1);
+            });
+        }
+
+
+        function changeYear(offset) {
+            const yearTitle = document.getElementById("yearTitle");
+            const currentYear = parseInt(yearTitle.dataset.year);
+            const newYear = currentYear + offset;
+
+            // 감정 통계 상단 연도도 갱신
+            const appDateElement = document.querySelector('.app-date');
+            if (appDateElement) {
+                appDateElement.innerText = newYear + '년';
+            }
+
+            location.href = `/calendar?mode=yearly&year=${newYear}`;
+        }
+
+    });
+
+
+    function changeMonth(offset) {
+        const currentYear = parseInt(document.getElementById("monthTitle").innerText.split('년')[0]);
+        const currentMonth = parseInt(document.getElementById("monthTitle").innerText.split('년 ')[1].replace('월', ''));
+
+        let newMonth = currentMonth + offset;
+        let newYear = currentYear;
+
+        if (newMonth < 1) {
+            newMonth = 12;
+            newYear -= 1;
+        } else if (newMonth > 12) {
+            newMonth = 1;
+            newYear += 1;
+        }
+
+        const yearMonthStr = `${newYear}-${newMonth < 10 ? '0' + newMonth : newMonth}`;
+        location.href = `/calendar?mode=monthly&yearMonth=${yearMonthStr}`;
+    }
+
+</script>
+</body>
+</html>

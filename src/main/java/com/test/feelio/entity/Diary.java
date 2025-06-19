@@ -80,4 +80,6 @@ public class Diary {
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
-}
+
+
+    }
