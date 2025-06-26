@@ -6,22 +6,53 @@
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <!-- 기본 스타일 -->
-    <link rel="stylesheet" href="/static/css/base.css">
+    <link rel="stylesheet" href="/css/base.css">
     <!-- 폰 스타일 -->
-    <link rel="stylesheet" href="/static/css/phone-style.css">
+    <link rel="stylesheet" href="/css/phone-style.css">
     <!-- 프레임 스타일 -->
-    <link rel="stylesheet" href="/static/css/phone-frame.css">
+    <link rel="stylesheet" href="/css/phone-frame.css">
     <!-- 스크롤바 스타일 -->
-    <link rel="stylesheet" href="/static/css/scrollbar-style.css">
-    <!-- 앱 콘텐츠 스타일 -->
-<!--    <link rel="stylesheet" href="/static/css/app-content.css">-->
+    <link rel="stylesheet" href="/css/scrollbar-style.css">
     <title>감다 채팅</title>
 
 </head>
 <style>
-    .header-layout-center {
-        text-align: center;
+    /* 챗봇 설명 영역 스타일 */
+    .chatbot-description {
+        background-color: rgba(245, 245, 250, 0.9);
+        border-radius: 16px;
+        margin: 12px 16px;
+        padding: 16px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        position: absolute;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        color: #505060;
+        border-left: 4px solid #8A93FF;
+        transition: all 0.3s ease;
     }
+
+    .chatbot-description p {
+        margin: 0;
+        word-break: keep-all;
+        overflow-wrap: break-word;
+    }
+
+    /* 호버 효과 */
+    .chatbot-description:hover {
+        background-color: rgba(240, 240, 255, 1);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    /* 반응형 디자인 */
+    @media (max-width: 480px) {
+        .chatbot-description {
+            margin: 10px 12px;
+            padding: 14px;
+            font-size: 0.9rem;
+        }
+    }
+
 </style>
 <body>
 <div class="phone-container">
@@ -42,38 +73,37 @@
     <!-- 앱 컨텐츠 -->
     <div class="app-container">
         <div class="app-header header-layout-center">
-            <div class="app-title">감다 채팅</div>
-            <div class="app-date">2023년 10월 15일</div>
+            <div class="app-title" th:text="${chatbot.typeName}">감다 채팅</div>
+            <div class="app-date" th:text="${#dates.format(#dates.createNow(), 'yyyy년 MM월 dd일')}">2023년 10월 15일</div>
         </div>
 
-        <!-- 오늘의 질문 -->
-        <!--    <div class="today-question">-->
-        <!--      <div class="today-question-label">오늘의 질문</div>-->
-        <!--      <div class="today-question-text">오늘 가장 행복했던 순간은 언제였나요?</div>-->
-        <!--    </div>-->
+        <!-- 챗봇 성격 설명 -->
+        <div class="chatbot-description">
+            <p th:text="${chatbot.personaDescription}">챗봇의 성격 설명이 여기에 표시됩니다.</p>
+        </div>
 
         <!-- 채팅 영역 -->
-        <div class="chat-container">
-            <div class="date-badge">2023년 10월 15일</div>
+        <div class="chat-container" id="chatContainer">
+            <div class="date-badge" th:text="${#dates.format(#dates.createNow(), 'yyyy년 MM월 dd일')}">2023년 10월 15일</div>
 
+            <!-- 기존 환영 메시지 -->
             <div class="bot-message">
                 안녕하세요! 오늘 하루는 어떠셨나요? 오늘의 마음을 들려주세요.
                 <div class="message-time">09:30</div>
             </div>
 
-            <div class="user-message">
-                오늘은 친구랑 카페에서 수다 떨다가 너무 웃어서 좋았어!
-                <div class="message-time">09:32</div>
-            </div>
+            <!-- 오늘 날짜 기준 과거 대화 메시지 렌더링 -->
+            <th:block th:each="msg : ${chatMessages}">
+                <div th:if="${msg.userMessage}" class="user-message" th:utext="${msg.messageContent}">
+                    <div class="message-time" th:text="${#temporals.format(msg.createdAt, 'HH:mm')}"></div>
+                </div>
+                <div th:if="${!msg.userMessage}" class="bot-message" th:utext="${msg.messageContent}">
+                    <div class="message-time" th:text="${#temporals.format(msg.createdAt, 'HH:mm')}"></div>
+                </div>
+            </th:block>
 
-            <div class="bot-message">
-                정말 즐거웠겠네요! 친구와의 시간은 항상 특별하죠. 그런 행복한 순간들이 더 많아지길 바랄게요! 💕
-                <div class="message-time">09:33</div>
-            </div>
 
-            <div class="system-message">
-                감정 기록이 저장되었습니다.
-            </div>
+
         </div>
 
         <!-- 입력 영역 -->
@@ -151,5 +181,95 @@
         messageObserver.observe(chatContainer, { childList: true, subtree: true });
     });
 </script>
+<script th:inline="javascript">
+    const chatbotTypeId = [[${chatbot.id}]];
+</script>
+<!-- WebSocket 메시지 처리 로직 추가 -->
+<script>
+    const input = document.querySelector('.message-input');
+    const sendBtn = document.querySelector('.send-button');
+    const chatContainer = document.querySelector('.chat-container');
+
+    const socket = new WebSocket("ws://localhost:8080/ws/chat");
+
+    socket.onopen = () => console.log("WebSocket 연결됨");
+
+    socket.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        if (data.response) {
+            addBotMessage(data.response);
+        } else if (data.error) {
+            addSystemMessage(data.error);
+        }
+    };
+
+    // ✅ IME 한글 입력 방지 플래그
+    let isComposing = false;
+
+    input.addEventListener('compositionstart', () => {
+        isComposing = true;
+    });
+
+    input.addEventListener('compositionend', () => {
+        isComposing = false;
+    });
+
+    input.addEventListener('keydown', e => {
+        if (e.key === 'Enter' && !isComposing) {
+            e.preventDefault(); // 기본 엔터 제출 방지
+            sendMessage();
+        }
+    });
+
+    sendBtn.addEventListener('click', sendMessage);
+
+    function sendMessage() {
+        const message = input.value.trim();
+        if (!message) return;
+
+        addUserMessage(message);
+        socket.send(JSON.stringify({
+            chatbotTypeId: chatbotTypeId,
+            message: message
+        }));
+
+        input.value = '';
+    }
+
+    function addUserMessage(text) {
+        const div = document.createElement('div');
+        div.className = 'user-message';
+        div.innerHTML = `${text}<div class="message-time">${getTime()}</div>`;
+        chatContainer.appendChild(div);
+        scrollToBottom();
+    }
+
+    function addBotMessage(text) {
+        const div = document.createElement('div');
+        div.className = 'bot-message';
+        div.innerHTML = `${text}<div class="message-time">${getTime()}</div>`;
+        chatContainer.appendChild(div);
+        scrollToBottom();
+    }
+
+    function addSystemMessage(text) {
+        const div = document.createElement('div');
+        div.className = 'system-message';
+        div.textContent = text;
+        chatContainer.appendChild(div);
+        scrollToBottom();
+    }
+
+    function scrollToBottom() {
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    function getTime() {
+        const now = new Date();
+        return now.getHours().toString().padStart(2, '0') + ':' +
+            now.getMinutes().toString().padStart(2, '0');
+    }
+</script>
+
 </body>
 </html>
